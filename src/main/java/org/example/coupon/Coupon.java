@@ -8,6 +8,6 @@ import lombok.*;
 @AllArgsConstructor
 public class Coupon {
     private Long id;
-    private Long menuId;            // FK
+    private Long menuId;
     private Long couponPrice;
 }
