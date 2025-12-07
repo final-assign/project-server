@@ -9,18 +9,18 @@ import org.example.user.User;
 import java.io.*;
 import java.net.Socket;
 
-public class ClientHandler extends Thread {
+public class ClientHandler extends Thread{
 
     private Socket commSocket;
     private User user;
     private final static byte[] loginRequestPacket = new byte[]{0x01, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-    public ClientHandler(Socket commSocket) {
+    public ClientHandler(Socket commSocket){
 
         this.commSocket = commSocket;
     }
 
-    public void run() {
+    public void run(){
 
         InputStream is;
         OutputStream os;
@@ -32,7 +32,7 @@ public class ClientHandler extends Thread {
         byte[] header = new byte[1 + 1 + 4];
         byte[] data = null;
         Long userId; //유저의 아이디, 조인할 때 필요
-        try {
+        try{
             is = commSocket.getInputStream();
             br = new BufferedReader(new InputStreamReader(is));
             dis = new DataInputStream(is);
@@ -45,7 +45,7 @@ public class ClientHandler extends Thread {
             dos.flush();
 
             ResponseDTO responseDTO = null;
-            while (true) {
+            while(true){
 
                 dis.readFully(header);
 
@@ -56,7 +56,7 @@ public class ClientHandler extends Thread {
                         dis.readFully(data);
                         LoginResponseDTO loginResponseDTO = ApplicationContext.userController.login(new LoginRequestDTO(data));
 
-                        if (loginResponseDTO.getLoginResponseType() == LoginResponseType.SUCCESS)
+                        if(loginResponseDTO.getLoginResponseType() == LoginResponseType.SUCCESS)
                             userId = loginResponseDTO.getUserId();
 
                         responseDTO = loginResponseDTO;
@@ -86,7 +86,7 @@ public class ClientHandler extends Thread {
             }
 
             commSocket.close();
-        } catch (IOException e) {
+        }catch(IOException e){
             System.err.println(e);
         }
     }
