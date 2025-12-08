@@ -87,21 +87,22 @@ public class MenuService {
         menu.setStandardPrice(standardPrice);
         menu.setStudentPrice(studentPrice);
         menu.setAmount(amount);
+    }
 
-        public ImageResponseDTO findImage ( long menuId){
-            Optional<Storage> storage = storageDAO.findByMenuID(menuId);
+    public ImageResponseDTO findImage(long menuId) {
+        Optional<Storage> storage = storageDAO.findByMenuID(menuId);
 
-            if (storage.isEmpty()) {
-                return ImageResponseDTO.builder()
-                        .resType(ResponseType.RESPONSE)
-                        .imageData(new byte[0])
-                        .build();
-            }
-
+        if (storage.isEmpty()) {
             return ImageResponseDTO.builder()
                     .resType(ResponseType.RESPONSE)
-                    .imageData(storage.get().getFileData())
+                    .imageData(new byte[0])
                     .build();
         }
+
+        return ImageResponseDTO.builder()
+                .resType(ResponseType.RESPONSE)
+                .imageData(storage.get().getFileData())
+                .build();
     }
+
 }
