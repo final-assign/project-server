@@ -17,13 +17,13 @@ public class MenuService {
         if(storage.isEmpty()) {
             return ImageResponseDTO.builder()
                     .resType(ResponseType.RESPONSE)
-                    .imageData(new byte[0])
+                    .imageBytes(new byte[0])
                     .build();
         }
 
         return ImageResponseDTO.builder()
                 .resType(ResponseType.RESPONSE)
-                .imageData(storage.get().getFileData())
+                .imageBytes(storage.get().getFileData())
                 .build();
     }
 }

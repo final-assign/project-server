@@ -1,4 +1,4 @@
-package org.example.menu.img_down;
+package org.example.menu;
 
 import lombok.*;
 
