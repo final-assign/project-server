@@ -1,18 +1,8 @@
 package org.example.general;
 
-import lombok.Getter;
-import org.example.coupon.CouponController;
-import org.example.coupon.CouponDAO;
-import org.example.coupon.CouponService;
 import org.example.menu.MenuController;
-import org.example.menu.MenuDAO;
 import org.example.menu.MenuService;
-import org.example.menu.StorageDAO;
-import org.example.order.OrderController;
-import org.example.order.OrderDAO;
-import org.example.order.OrderService;
-import org.example.restaurant.RestaurantController;
-import org.example.restaurant.RestaurantDAO;
+import org.example.menu.storage.StorageDAO;
 import org.example.user.UserController;
 import org.example.user.UserDAO;
 import org.example.user.UserService;
@@ -38,10 +28,12 @@ public class ApplicationContext {
 
     static {
 
-        storageDAO = new StorageDAO();
         UserDAO dao = new UserDAO();
         userService = new UserService(dao);
         userController = new UserController(userService);
+        storageDAO = new StorageDAO();
+        menuService = new MenuService(storageDAO);
+        menuController = new MenuController(menuService);
         menuDAO = new MenuDAO();
         restaurantDAO = new RestaurantDAO();
         menuService = new MenuService(menuDAO);
