@@ -3,6 +3,7 @@ package org.example.general;
 import org.example.login.LoginRequestDTO;
 import org.example.login.LoginResponseDTO;
 import org.example.login.LoginResponseType;
+import org.example.menu.img_down.ImageRequestDTO;
 import org.example.user.User;
 
 import java.io.*;
@@ -60,6 +61,14 @@ public class ClientHandler extends Thread{
 
                         responseDTO = loginResponseDTO;
                     }
+
+                    case 0x21 ->{
+                        data = new byte[Utils.bytesToInt(header, 2)];
+                        dis.readFully(data);
+
+                        responseDTO = ApplicationContext.menuController.getImage(new ImageRequestDTO(data));
+                    }
+
                 }
 
                 if(header[0] == 0x7E) break;
