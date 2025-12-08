@@ -30,6 +30,7 @@ public class ClientHandler extends Thread{
 
         byte[] header = new byte[1 + 1 + 4];
         byte[] data = null;
+
         Long userId; //유저의 아이디, 조인할 때 필요
         try{
             is = commSocket.getInputStream();
@@ -59,6 +60,11 @@ public class ClientHandler extends Thread{
                             userId = loginResponseDTO.getUserId();
 
                         responseDTO = loginResponseDTO;
+                    }
+
+                    case 0x88 ->{
+
+
                     }
                 }
 
