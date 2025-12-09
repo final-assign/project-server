@@ -31,7 +31,7 @@ public class ClientHandler extends Thread{
         byte[] header = new byte[1 + 1 + 4];
         byte[] data = null;
 
-        Long userId; //유저의 아이디, 조인할 때 필요
+        Long userId; //유저의 아이디, 조인할 때 필요 일단 stateful.
         try{
             is = commSocket.getInputStream();
             br = new BufferedReader(new InputStreamReader(is));
@@ -62,12 +62,11 @@ public class ClientHandler extends Thread{
                         responseDTO = loginResponseDTO;
                     }
 
-                    case 0x88 ->{
+                    case 0x80{
 
-
+                        //Restaurant 처리 분리 된거 다 합쳐서 (JpaRepository Style)
                     }
                 }
-
                 if(header[0] == 0x7E) break;
                 dos.write(responseDTO.toBytes());
                 dos.flush();

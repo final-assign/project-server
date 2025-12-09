@@ -24,7 +24,7 @@ public class UserService {
          if(!ApplicationContext.session.addSession(user.get().getId()))
              return LoginResponseDTO.builder()
                      .resType(ResponseType.RESPONSE)
-                     .loginResponseType(LoginResponseType.DISCONNECTED).build(); //중복 접속
+                     .loginResponseType(LoginResponseType.DISCONNECTED).build();
 
          return LoginResponseDTO.builder()
                         .resType(ResponseType.RESPONSE)
