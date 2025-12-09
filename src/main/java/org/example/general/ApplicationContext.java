@@ -4,6 +4,7 @@ import lombok.Getter;
 import org.example.menu.MenuController;
 import org.example.menu.MenuDAO;
 import org.example.menu.StorageDAO;
+import org.example.restaurant.RestaurantController;
 import org.example.restaurant.RestaurantDAO;
 import org.example.user.UserController;
 import org.example.user.UserDAO;
@@ -20,6 +21,8 @@ public class ApplicationContext {
     private static final MenuController menuController;
     @Getter
     private static final StorageDAO storageDAO;
+    @Getter
+    private static final RestaurantController restaurantController;
 
     static {
 
@@ -30,5 +33,6 @@ public class ApplicationContext {
         menuDAO = new MenuDAO();
         restaurantDAO = new RestaurantDAO();
         menuController = new MenuController(menuDAO, restaurantDAO);
+        restaurantController = new RestaurantController(restaurantDAO, userService);
     }
 }

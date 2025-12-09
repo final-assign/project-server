@@ -32,4 +32,9 @@ public class UserService {
                         .userId(user.get().getId())
                         .userType(user.get().getType()).build();
     }
+
+    public UserType getUserType(Long userId){
+
+        return userDAO.findTypeById(userId);
+    }
 }
