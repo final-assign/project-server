@@ -1,8 +1,11 @@
 package org.example.general;
 
+import org.example.coupon.CouponController;
+import org.example.coupon.CouponDAO;
+import org.example.coupon.CouponService;
 import org.example.menu.MenuController;
 import org.example.menu.MenuService;
-import org.example.menu.storage.StorageDAO;
+import org.example.menu.img_down.StorageDAO;
 import org.example.user.UserController;
 import org.example.user.UserDAO;
 import org.example.user.UserService;

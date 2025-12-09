@@ -1,12 +1,10 @@
 package org.example.order;
 
 import lombok.RequiredArgsConstructor;
-import org.example.db.PooledDataSource;
-import org.example.general.ApplicationContext;
-import org.example.general.Session;
-import org.example.menu.Menu;
-import org.example.menu.MenuDAO;
-import org.example.user.User;
+import org.example.general.ResponseType;
+import org.example.order.order_request.OrderDetailDAO;
+import org.example.order.order_request.OrderDetail;
+import org.example.order.order_request.OrderResponseDTO;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -15,11 +13,27 @@ import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
 public class OrderService {
-
+    private final OrderDetailDAO orderDetailDAO;
     private final MenuDAO menuDAO;
     private final OrderDAO orderDAO;
     private final Session session = ApplicationContext.session;
     private final DataSource ds = PooledDataSource.getDataSource();
+
+    public OrderResponseDTO getOrder(Long userId, LocalDateTime startAt, LocalDateTime endAt) {
+        List<OrderDetail> orders = orderDetailDAO.findByUserId(userId, startAt, endAt);
+
+        if (orders.isEmpty()) {
+            return OrderResponseDTO.builder()
+                    .responseType(ResponseType.RESPONSE)
+                    .orders(Collections.emptyList())
+                    .build();
+        }
+
+        return OrderResponseDTO.builder()
+                .responseType(ResponseType.RESPONSE)
+                .orders(orders)
+                .build();
+    }
 
     public void createOrder(OrderRequestDTO requestDTO, Long userId) {
         Connection conn = null;
@@ -37,6 +51,7 @@ public class OrderService {
                 throw new RuntimeException("금일 재고가 모두 소진되었습니다.");
             }
 
+
             // TODO: 가격 검증 및 쿠폰 적용 로직
             // int finalPrice = ...;
             // if (finalPrice != requestDTO.getCharge()) {
@@ -48,8 +63,7 @@ public class OrderService {
                     .couponId(requestDTO.getCouponId() == 0 ? null : requestDTO.getCouponId())
                     .userId(userId)
                     .status(OrderStatus.COOKING)
-                    .createdAt(String.valueOf(LocalDateTime.now()))
-                    .build();
+                    .createdAt(String.valueOf(LocalDateTime.now()));
 
             orderDAO.insert(newOrder, conn);
 
