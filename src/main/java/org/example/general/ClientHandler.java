@@ -4,6 +4,7 @@ import org.example.login.LoginRequestDTO;
 import org.example.login.LoginResponseDTO;
 import org.example.login.LoginResponseType;
 import org.example.menu.img_down.ImageRequestDTO;
+import org.example.order.order_request.OrderRequestDTO;
 import org.example.user.User;
 
 import java.io.*;
@@ -31,7 +32,7 @@ public class ClientHandler extends Thread{
 
         byte[] header = new byte[1 + 1 + 4];
         byte[] data = null;
-        Long userId; //유저의 아이디, 조인할 때 필요
+        Long userId = 0L; //유저의 아이디, 조인할 때 필요
         try{
             is = commSocket.getInputStream();
             br = new BufferedReader(new InputStreamReader(is));
@@ -63,12 +64,28 @@ public class ClientHandler extends Thread{
                     }
 
                     case 0x21 ->{
+                        //메뉴 id 파싱 후 사진
                         data = new byte[Utils.bytesToInt(header, 2)];
                         dis.readFully(data);
 
                         responseDTO = ApplicationContext.menuController.getImage(new ImageRequestDTO(data));
                     }
 
+                    case 0x41->{
+                        //조회기간 파싱 후 이용 내역
+                        data = new byte[Utils.bytesToInt(header, 2)];
+                        dis.readFully(data);
+
+                        responseDTO = ApplicationContext.orderController.getOrder(new OrderRequestDTO(data), userId);
+                    }
+
+                    case 0x42->{
+                        //잔여 쿠폰
+                        data = new byte[Utils.bytesToInt(header, 2)];
+                        dis.readFully(data);
+
+                        responseDTO = ApplicationContext.couponController.getCoupons(userId);
+                    }
                 }
 
                 if(header[0] == 0x7E) break;
