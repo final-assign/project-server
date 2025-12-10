@@ -3,8 +3,10 @@ package org.example.general;
 import org.example.login.LoginRequestDTO;
 import org.example.login.LoginResponseDTO;
 import org.example.login.LoginResponseType;
-import org.example.menu.img_down.ImageRequestDTO;
-import org.example.order.order_request.OrderRequestDTO;
+import org.example.menu.MenuRegisterRequestDTO;
+import org.example.order.order_request.OrderDetailAdminRequestDTO;
+import org.example.storage.ImageRequestDTO;
+import org.example.order.order_request.OrderDetailRequestDTO;
 import org.example.user.User;
 import org.example.user.UserType;
 
@@ -34,7 +36,7 @@ public class ClientHandler extends Thread {
         byte[] header = new byte[1 + 1 + 4];
         byte[] data = null;
         Long userId = 0L; //유저의 아이디, 조인할 때 필요
-        try{
+        try {
             is = commSocket.getInputStream();
             br = new BufferedReader(new InputStreamReader(is));
             dis = new DataInputStream(is);
@@ -64,27 +66,27 @@ public class ClientHandler extends Thread {
                         responseDTO = loginResponseDTO;
                     }
 
-                    case 0x21 ->{
+                    case 0x21 -> {
                         //메뉴 id 파싱 후 사진
                         data = new byte[Utils.bytesToInt(header, 2)];
                         dis.readFully(data);
 
-                        responseDTO = ApplicationContext.menuController.getImage(new ImageRequestDTO(data));
+                        responseDTO = ApplicationContext.getMenuController().getImage(new ImageRequestDTO(data));
                     }
                     case (byte) 0x80 -> {
 
                         responseDTO = ApplicationContext.getRestaurantController().getRestaurantListAll(userId);
                     }
 
-                    case 0x41->{
+                    case 0x41 -> {
                         //조회기간 파싱 후 이용 내역
                         data = new byte[Utils.bytesToInt(header, 2)];
                         dis.readFully(data);
 
-                        responseDTO = ApplicationContext.orderController.getOrder(new OrderRequestDTO(data), userId);
+                        responseDTO = ApplicationContext.getOrderController().getOrder(new OrderDetailRequestDTO(data), userId);
                     }
 
-                    case 0x42->{
+                    case 0x42 -> {
                         //잔여 쿠폰
                         data = new byte[Utils.bytesToInt(header, 2)];
                         dis.readFully(data);
@@ -110,34 +112,11 @@ public class ClientHandler extends Thread {
                         data = new byte[Utils.bytesToInt(header, 2)];
                         dis.readFully(data);
 
-                        responseDTO = ApplicationContext.orderController.getOrderHistory(new OrderDetailRequestDTO(data));
-                    }
-
-                    case (byte) 0xA3 -> {
-//                        //
-//                        if (user.getType() != UserType.ADMIN) ;
-//                        //뭔가 넣어야할 삘...
-//
-//                        data = new byte[Utils.bytesToInt(header, 2)];
-//                        dis.readFully(data);
-//
-//                        responseDTO = ApplicationContext.orderController.getOrderByRestaurant(new OrderByRestaurantRequestDTO(data));
-                    }
-
-                    case (byte) 0xA4 -> {
-//                        //설계 변경으로 필요없을지?도
-//                        if (user.getType() != UserType.ADMIN) ;
-//                        //뭔가 넣어야할 삘...
-//
-//                        data = new byte[Utils.bytesToInt(header, 2)];
-//                        dis.readFully(data);
-//
-//                        // 2. Controller 호출 -> Service -> DAO
-//                        responseDTO = ApplicationContext.orderController.updateStatus(new OrderStatusUpdateRequestDTO(data));
+                        responseDTO = ApplicationContext.getOrderController().getOrderAdminHistory(new OrderDetailAdminRequestDTO(data));
                     }
                 }
 
-                if(header[0] == 0x7E) break;
+                if (header[0] == 0x7E) break;
                 dos.write(responseDTO.toBytes());
                 dos.flush();
             }

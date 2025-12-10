@@ -2,6 +2,9 @@ package org.example.coupon;
 
 import lombok.RequiredArgsConstructor;
 import org.example.general.ResponseType;
+import org.example.menu.Menu;
+import org.example.menu.MenuDAO;
+import org.example.user.UserType;
 
 import java.util.Collections;
 import java.util.List;

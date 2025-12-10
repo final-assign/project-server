@@ -13,18 +13,11 @@ public class OrderController {
         return orderService.getOrder(userId, orderDetailRequestDTO.getStartAt(), orderDetailRequestDTO.getEndAt());
     }
 
-//    public OrderByRestaurantResponseDTO getOrderByRestaurant(OrderByRestaurantRequestDTO orderByRestaurantRequestDTO) {
-//        return orderService.getOrderByRestaurant(orderByRestaurantRequestDTO.getRestaurantId());
-//    }
-
     public OrderDetailAdminResponseDTO getOrderAdminHistory(OrderDetailAdminRequestDTO requestDTO) {
         //admin
-        return orderService.getOrderHistory(
-                requestDTO.getRestaurantId(),
-                requestDTO.getStartAt(),
-                requestDTO.getEndAt()
-        );
+        return orderService.getOrderHistory(requestDTO.getRestaurantId(), requestDTO.getStartAt(), requestDTO.getEndAt());
     }
+
 
     public void processOrder(OrderRequestDTO requestDTO, Long id) {
             orderService.createOrder(requestDTO, id);

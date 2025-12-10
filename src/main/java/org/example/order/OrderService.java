@@ -1,10 +1,16 @@
 package org.example.order;
 
 import lombok.RequiredArgsConstructor;
+import org.example.db.PooledDataSource;
+import org.example.general.ApplicationContext;
 import org.example.general.ResponseType;
+import org.example.general.Session;
+import org.example.menu.Menu;
+import org.example.menu.MenuDAO;
+import org.example.order.order_request.OrderDetailAdminResponseDTO;
 import org.example.order.order_request.OrderDetailDAO;
 import org.example.order.order_request.OrderDetail;
-import org.example.order.order_request.OrderResponseDTO;
+import org.example.order.order_request.OrderDetailResponseDTO;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -37,18 +43,18 @@ public class OrderService {
                 .build();
     }
 
-    public OrderDetailResponseDTO getOrderHistory(Long restaurantId, LocalDateTime startAt, LocalDateTime endAt) {
+    public OrderDetailAdminResponseDTO getOrderHistory(Long restaurantId, LocalDateTime startAt, LocalDateTime endAt) {
         List<OrderDetail> orders = orderDetailDAO.findByRestaurantAndTime(restaurantId, startAt, endAt);
 
         //결과가 없으면 빈 리스트
         if (orders.isEmpty()) {
-            return OrderDetailResponseDTO.builder()
+            return OrderDetailAdminResponseDTO.builder()
                     .responseType(ResponseType.RESPONSE)
                     .orders(Collections.emptyList())
                     .build();
         }
 
-        return OrderResponseDTO.builder()
+        return OrderDetailAdminResponseDTO.builder()
                 .responseType(ResponseType.RESPONSE)
                 .orders(orders)
                 .build();
@@ -82,7 +88,8 @@ public class OrderService {
                     .couponId(requestDTO.getCouponId() == 0 ? null : requestDTO.getCouponId())
                     .userId(userId)
                     .status(OrderStatus.COOKING)
-                    .createdAt(String.valueOf(LocalDateTime.now()));
+                    .createdAt(LocalDateTime.now())
+                    .build();
 
             orderDAO.insert(newOrder, conn);
 

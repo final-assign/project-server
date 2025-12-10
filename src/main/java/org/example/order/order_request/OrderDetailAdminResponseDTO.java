@@ -25,11 +25,11 @@ public class OrderDetailAdminResponseDTO implements ResponseDTO {
             bodySize += 28; //idLen 4 id 8  + amountLen 4 amount 4 + purchasePriceLen 4 purchasePrice 4 = 28 고정이니 하드코딩..
 
             //문자열 길이용 int + 문자열 길이
-            bodySize += 4 + Utils.getByteLength(order.getSchoolId());
-            bodySize += 4 + Utils.getByteLength(order.getMenuName());
-            bodySize += 4 + Utils.getByteLength(order.getPurchaseType().toString());
-            bodySize += 4 + Utils.getByteLength(order.getStatus().toString());
-            bodySize += 4 + Utils.getByteLength(order.getCreatedAt().toString());
+            bodySize += Utils.getStrSize(order.getSchoolId());
+            bodySize += Utils.getStrSize(order.getMenuName());
+            bodySize += Utils.getStrSize(order.getPurchaseType().toString());
+            bodySize += Utils.getStrSize(order.getStatus().toString());
+            bodySize += Utils.getStrSize(order.getCreatedAt().toString());
         }
 
         int totalSize = 1 + 1 + 4 + bodySize;
@@ -41,56 +41,45 @@ public class OrderDetailAdminResponseDTO implements ResponseDTO {
         res[cursor++] = (byte) 0x41;
 
         //body 길이
-        System.arraycopy(Utils.intToBytes(bodySize), 0, res, cursor, 4);
-        cursor += 4;
+        cursor += Utils.intToBytes(bodySize, res, cursor);
 
         //주문 계수
-        System.arraycopy(Utils.intToBytes(orders.size()), 0, res, cursor, 4);
-        cursor += 4;
+        cursor += Utils.intToBytes(orders.size(), res, cursor);
 
         for (OrderDetail order : orders) {
-            //order Id
-            System.arraycopy(Utils.intToBytes(8), 0, res, cursor, 4);
-            cursor += 4;
-            System.arraycopy(Utils.longToBytes(order.getId()), 0, res, cursor, 8);
-            cursor += 8;
+            //order Id 길이
+            cursor += Utils.intToBytes(8, res, cursor);
+            //id
+            cursor += Utils.longToBytes(order.getId(), res, cursor);
 
-            //학생 id
-            System.arraycopy(Utils.intToBytes(order.getSchoolId().length()), 0, res, cursor, 4);
-            cursor += 4;
-            cursor = Utils.writeString(res, cursor, order.getSchoolId());
+            //학생 id len
+            cursor += Utils.intToBytes(order.getMenuName().length(), res, cursor);
+            //id
+            cursor = Utils.stringToBytes(order.getSchoolId(), res, cursor);
 
             //메뉴 이름
-            System.arraycopy(Utils.intToBytes(Utils.getByteLength(order.getMenuName())), 0, res, cursor, 4);
-            cursor += 4;
-            cursor = Utils.writeString(res, cursor, order.getMenuName());
+            cursor += Utils.intToBytes(order.getMenuName().length(), res, cursor);
+            cursor = Utils.stringToBytes(order.getMenuName(), res, cursor);
 
             //결제 가격
-            System.arraycopy(Utils.intToBytes(4), 0, res, cursor, 4);
-            cursor += 4;
-            System.arraycopy(Utils.intToBytes(order.getPrice()), 0, res, cursor, 4);
-            cursor += 4;
+            cursor += Utils.intToBytes(4, res, cursor);
+            cursor += Utils.intToBytes(order.getPrice(), res, cursor);
 
             //쿠폰 가격
-            System.arraycopy(Utils.intToBytes(4), 0, res, cursor, 4);
-            cursor += 4;
             System.arraycopy(Utils.intToBytes(order.getCouponPrice()), 0, res, cursor, 4);
-            cursor += 4;
+            cursor += Utils.intToBytes(order.getCouponPrice(), res, cursor);
 
             //구매 유형
-            System.arraycopy(Utils.intToBytes(Utils.getByteLength(order.getPurchaseType().toString())), 0, res, cursor, 4);
-            cursor += 4;
-            cursor = Utils.writeString(res, cursor, order.getPurchaseType().toString());
+            cursor += Utils.intToBytes(order.getPurchaseType().toString().length(), res, cursor);
+            cursor = Utils.stringToBytes(order.getPurchaseType().toString(), res, cursor);
 
             //상태
-            System.arraycopy(Utils.intToBytes(Utils.getByteLength(order.getStatus().toString())), 0, res, cursor, 4);
-            cursor += 4;
-            cursor = Utils.writeString(res, cursor, order.getStatus().toString());
+            cursor += Utils.intToBytes(order.getStatus().toString().length(), res, cursor);
+            cursor = Utils.stringToBytes(order.getStatus().toString(), res, cursor);
 
             //결제 시간
-            System.arraycopy(Utils.intToBytes(Utils.getByteLength(order.getCreatedAt().toString())), 0, res, cursor, 4);
-            cursor += 4;
-            cursor = Utils.writeString(res, cursor, order.getCreatedAt().toString());
+            cursor += Utils.intToBytes(order.getCreatedAt().toString().length(), res, cursor);
+            cursor = Utils.stringToBytes(order.getCreatedAt().toString(), res, cursor);
         }
 
         return res;

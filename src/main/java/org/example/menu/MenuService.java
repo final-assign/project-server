@@ -2,11 +2,10 @@ package org.example.menu;
 
 import lombok.RequiredArgsConstructor;
 import org.example.general.ResponseType;
-import org.example.menu.storage.ImageResponseDTO;
-import org.example.menu.storage.StorageDAO;
+import org.example.storage.ImageResponseDTO;
+import org.example.storage.StorageDAO;
 import org.example.db.PooledDataSource;
 import org.example.general.Pair;
-
 import java.util.Optional;
 import javax.sql.DataSource;
 import java.nio.charset.StandardCharsets;
@@ -17,8 +16,8 @@ import java.util.ArrayList;
 
 @RequiredArgsConstructor
 public class MenuService {
-
     private final MenuDAO menuDAO;
+    private final StorageDAO storageDAO;
     // private final RestaurantDAO restaurantDAO; // [삭제] 이제 필요 없음!
     private final DataSource ds = PooledDataSource.getDataSource();
 
@@ -87,6 +86,9 @@ public class MenuService {
         menu.setStandardPrice(standardPrice);
         menu.setStudentPrice(studentPrice);
         menu.setAmount(amount);
+
+        return 1L;
+
     }
 
     public ImageResponseDTO findImage(long menuId) {

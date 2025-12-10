@@ -22,8 +22,9 @@ public class CouponResponseDTO implements ResponseDTO {
         // 쿠폰 개수 4바이트
         int bodyLength = 4;
         for (CouponDetail coupon : coupons) {
-            // id 8, price 4, quantity 4, menuName 길이 4 + menuName
-            bodyLength += 8 + 4 + 4 + 4 + coupon.getMenuName().getBytes(StandardCharsets.UTF_8).length;
+            // id 8, price 4, quantity 4
+            bodyLength += 8 + 4 + 4;
+            bodyLength += Utils.getStrSize(coupon.getMenuName());
         }
 
         byte[] res = new byte[1 + 1 + 4 + bodyLength];
@@ -62,9 +63,12 @@ public class CouponResponseDTO implements ResponseDTO {
             System.arraycopy(Utils.intToBytes(coupon.getQuantity()), 0, res, cursor, 4);
             cursor += 4;
 
+
+            //메뉴 이름 사이즈
+            System.arraycopy(Utils.intToBytes(Utils.getStrSize(coupon.getMenuName())), 0, res, cursor, 4);
+            cursor += 4;
             //메뉴 이름
-            System.arraycopy(Utils.intToBytes(Utils.getByteLength(coupon.getMenuName())), 0, res, cursor, 4);
-            cursor = Utils.writeString(res, cursor, coupon.getMenuName());
+            System.arraycopy(Utils.intToBytes(Utils.stringToBytes(coupon.getMenuName(), res, cursor)), 0, res, cursor, 4);
         }
 
         return res;
