@@ -15,15 +15,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class OrderDetail {
     private Long id;
-        private Long userId;
-        private Long menuId;
-        private Long couponId;
-        private PurchaseType purchaseType;
-        private OrderStatus status;
-        private LocalDateTime createdAt;
-        private int amount;
-        private int purchasePrice;
-
-        private String menuName;
-        private int couponPrice;
+    private String schoolId;
+    private String menuName;
+    private int couponPrice;
+    private PurchaseType purchaseType;
+    private OrderStatus status;
+    private LocalDateTime createdAt;
+    private int purchasePrice;
 }

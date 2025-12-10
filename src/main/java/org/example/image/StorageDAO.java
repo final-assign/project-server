@@ -1,4 +1,4 @@
-package org.example.menu.img_down;
+package org.example.image;
 
 import org.example.db.PooledDataSource;
 import org.example.menu.Storage;
@@ -13,7 +13,7 @@ import java.util.Optional;
 public class StorageDAO {
     private final DataSource ds = PooledDataSource.getDataSource();
 
-    String sql = "SELECT * FROM Storage WHERE menu_id = ?";
+    String sql = "SELECT * FROM STORAGE WHERE menu_id = ?";
 
     public Optional<Storage> findByMenuID(long menuID) {
         Storage storage = null;

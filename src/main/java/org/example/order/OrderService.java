@@ -10,6 +10,8 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 
 @RequiredArgsConstructor
 public class OrderService {
@@ -19,11 +21,28 @@ public class OrderService {
     private final Session session = ApplicationContext.session;
     private final DataSource ds = PooledDataSource.getDataSource();
 
-    public OrderResponseDTO getOrder(Long userId, LocalDateTime startAt, LocalDateTime endAt) {
+    public OrderDetailResponseDTO getOrder(Long userId, LocalDateTime startAt, LocalDateTime endAt) {
         List<OrderDetail> orders = orderDetailDAO.findByUserId(userId, startAt, endAt);
 
         if (orders.isEmpty()) {
-            return OrderResponseDTO.builder()
+            return OrderDetailResponseDTO.builder()
+                    .responseType(ResponseType.RESPONSE)
+                    .orders(Collections.emptyList())
+                    .build();
+        }
+
+        return OrderDetailResponseDTO.builder()
+                .responseType(ResponseType.RESPONSE)
+                .orders(orders)
+                .build();
+    }
+
+    public OrderDetailResponseDTO getOrderHistory(Long restaurantId, LocalDateTime startAt, LocalDateTime endAt) {
+        List<OrderDetail> orders = orderDetailDAO.findByRestaurantAndTime(restaurantId, startAt, endAt);
+
+        //결과가 없으면 빈 리스트
+        if (orders.isEmpty()) {
+            return OrderDetailResponseDTO.builder()
                     .responseType(ResponseType.RESPONSE)
                     .orders(Collections.emptyList())
                     .build();

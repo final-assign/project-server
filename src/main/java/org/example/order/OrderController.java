@@ -1,19 +1,32 @@
 package org.example.order;
 
 import lombok.RequiredArgsConstructor;
-import org.example.order.order_request.OrderRequestDTO;
-import org.example.order.order_request.OrderResponseDTO;
+import org.example.order.order_request.*;
 
 @RequiredArgsConstructor
 public class OrderController {
     private final OrderService orderService;
 
     //얘도 임시
-    public OrderResponseDTO getOrder(OrderRequestDTO orderRequestDTO, long userId) {
-        return orderService.getOrder(userId, orderRequestDTO.getStartAt(), orderRequestDTO.getEndAt());
+    public OrderDetailResponseDTO getOrder(OrderDetailRequestDTO orderDetailRequestDTO, long userId) {
+        //user
+        return orderService.getOrder(userId, orderDetailRequestDTO.getStartAt(), orderDetailRequestDTO.getEndAt());
+    }
+
+//    public OrderByRestaurantResponseDTO getOrderByRestaurant(OrderByRestaurantRequestDTO orderByRestaurantRequestDTO) {
+//        return orderService.getOrderByRestaurant(orderByRestaurantRequestDTO.getRestaurantId());
+//    }
+
+    public OrderDetailResponseDTO getOrderHistory(OrderDetailRequestDTO requestDTO) {
+        //admin
+        return orderService.getOrderHistory(
+                requestDTO.getRestaurantId(),
+                requestDTO.getStartAt(),
+                requestDTO.getEndAt()
+        );
     }
 
     public void processOrder(OrderRequestDTO requestDTO, Long id) {
-        orderService.createOrder(requestDTO, id);
-    }
+            orderService.createOrder(requestDTO, id);
+        }
 }
