@@ -1,4 +1,4 @@
-package org.example.image;
+package org.example.storage;
 
 import org.example.db.PooledDataSource;
 import org.example.menu.Storage;

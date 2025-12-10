@@ -1,4 +1,4 @@
-package org.example.image;
+package org.example.storage;
 
 import lombok.Builder;
 import lombok.Data;

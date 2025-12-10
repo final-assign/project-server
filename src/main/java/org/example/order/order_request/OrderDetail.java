@@ -17,6 +17,7 @@ public class OrderDetail {
     private Long id;
     private String schoolId;
     private String menuName;
+    private String restaurantName;
     private int couponPrice;
     private PurchaseType purchaseType;
     private OrderStatus status;

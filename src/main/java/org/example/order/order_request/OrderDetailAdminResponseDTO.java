@@ -6,13 +6,12 @@ import lombok.RequiredArgsConstructor;
 import org.example.general.ResponseDTO;
 import org.example.general.ResponseType;
 import org.example.general.Utils;
-
 import java.util.List;
 
 @Data
 @Builder
 @RequiredArgsConstructor
-public class OrderDetailResponseDTO implements ResponseDTO {
+public class OrderDetailAdminResponseDTO implements ResponseDTO {
     private final ResponseType responseType;
     private final List<OrderDetail> orders;
 
@@ -56,15 +55,15 @@ public class OrderDetailResponseDTO implements ResponseDTO {
             System.arraycopy(Utils.longToBytes(order.getId()), 0, res, cursor, 8);
             cursor += 8;
 
+            //학생 id
+            System.arraycopy(Utils.intToBytes(order.getSchoolId().length()), 0, res, cursor, 4);
+            cursor += 4;
+            cursor = Utils.writeString(res, cursor, order.getSchoolId());
+
             //메뉴 이름
             System.arraycopy(Utils.intToBytes(Utils.getByteLength(order.getMenuName())), 0, res, cursor, 4);
             cursor += 4;
             cursor = Utils.writeString(res, cursor, order.getMenuName());
-
-            //식당 이름
-            System.arraycopy(Utils.intToBytes(Utils.getByteLength(order.getRestaurantName())), 0, res, cursor, 4);
-            cursor += 4;
-            cursor = Utils.writeString(res, cursor, order.getRestaurantName());
 
             //결제 가격
             System.arraycopy(Utils.intToBytes(4), 0, res, cursor, 4);
