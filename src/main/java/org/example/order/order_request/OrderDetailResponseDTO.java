@@ -17,81 +17,41 @@ public class OrderDetailResponseDTO implements ResponseDTO {
 
     @Override
     public byte[] toBytes() {
-        int bodySize = 0;
-
-        bodySize += 4; //byte 배열 크기용
-
+        // 1. 전체 Body 사이즈 계산
+        int bodySize = 4; // 주문 개수(int)
         for (OrderDetail order : orders) {
-            bodySize += 28; //idLen 4 id 8  + amountLen 4 amount 4 + purchasePriceLen 4 purchasePrice 4 = 28 고정이니 하드코딩..
-
-            //문자열 길이용 int + 문자열 길이
-            bodySize += Utils.getStrSize(order.getSchoolId());
+            bodySize += 8; // id(long)
             bodySize += Utils.getStrSize(order.getMenuName());
+            bodySize += Utils.getStrSize(order.getRestaurantName());
+            bodySize += 4; // price(int)
+            bodySize += 4; // couponPrice(int)
             bodySize += Utils.getStrSize(order.getPurchaseType().toString());
             bodySize += Utils.getStrSize(order.getStatus().toString());
             bodySize += Utils.getStrSize(order.getCreatedAt().toString());
         }
 
+        // 2. 전체 패킷 사이즈 계산 및 버퍼 할당
+        // responseType(1) + responseCode(1) + bodySize(4) + body(N)
         int totalSize = 1 + 1 + 4 + bodySize;
         byte[] res = new byte[totalSize];
-        int cursor = 0;
+        int offset = 0;
 
-        res[cursor++] = (byte) responseType.getValue();
-        //얘도 주문내역 전송만 해서 하드코딩
-        res[cursor++] = (byte) 0x41;
+        // 3. Header 채우기
+        res[offset++] = (byte) responseType.getValue();
+        res[offset++] = (byte) 0x41; // 주문 내역 전송 코드
+        offset = Utils.intToBytes(bodySize, res, offset);
 
-        //body 길이
-        System.arraycopy(Utils.intToBytes(bodySize), 0, res, cursor, 4);
-        cursor += 4;
-
-        //주문 계수
-        System.arraycopy(Utils.intToBytes(orders.size()), 0, res, cursor, 4);
-        cursor += 4;
-
+        // 4. Body 채우기
+        offset = Utils.intToBytes(orders.size(), res, offset);
         for (OrderDetail order : orders) {
-            //order Id
-            System.arraycopy(Utils.intToBytes(8), 0, res, cursor, 4);
-            cursor += 4;
-            System.arraycopy(Utils.longToBytes(order.getId()), 0, res, cursor, 8);
-            cursor += 8;
-
-            //메뉴 이름
-            System.arraycopy(Utils.intToBytes(order.getMenuName().length()), 0, res, cursor, 4);
-            cursor += 4;
-            cursor = Utils.stringToBytes(order.getMenuName(), res, cursor);
-
-
-            //식당 이름
-            System.arraycopy(Utils.intToBytes(order.getMenuName().length()), 0, res, cursor, 4);
-            cursor += 4;
-            cursor = Utils.stringToBytes(order.getRestaurantName(), res, cursor);
-
-            //결제 가격
-            System.arraycopy(Utils.intToBytes(4), 0, res, cursor, 4);
-            cursor += 4;
-            System.arraycopy(Utils.intToBytes(order.getPrice()), 0, res, cursor, 4);
-            cursor += 4;
-
-            //쿠폰 가격
-            System.arraycopy(Utils.intToBytes(4), 0, res, cursor, 4);
-            cursor += 4;
-            System.arraycopy(Utils.intToBytes(order.getCouponPrice()), 0, res, cursor, 4);
-            cursor += 4;
-
-            //구매 유형
-            System.arraycopy(Utils.intToBytes(Utils.getStrSize(order.getPurchaseType().toString())), 0, res, cursor, 4);
-            cursor += 4;
-            cursor = Utils.stringToBytes(order.getPurchaseType().toString(), res, cursor);
-
-            //상태
-            System.arraycopy(Utils.intToBytes(Utils.getStrSize(order.getStatus().toString())), 0, res, cursor, 4);
-            cursor += 4;
-            cursor = Utils.stringToBytes(order.getStatus().toString(), res, cursor);
-
-            //결제 시간
-            System.arraycopy(Utils.intToBytes(Utils.getStrSize(order.getCreatedAt().toString())), 0, res, cursor, 4);
-            cursor += 4;
-            cursor = Utils.stringToBytes(order.getCreatedAt().toString(), res, cursor);
+            offset = Utils.longToBytes(order.getId(), res, offset);
+            offset = Utils.stringToBytes(order.getMenuName(), res, offset);
+            offset = Utils.stringToBytes(order.getRestaurantName(), res, offset);
+            offset = Utils.intToBytes(order.getPrice(), res, offset);
+            offset = Utils.intToBytes(order.getCouponPrice(), res, offset);
+            offset = Utils.stringToBytes(order.getPurchaseType().toString(), res, offset);
+            offset = Utils.stringToBytes(order.getStatus().toString(), res, offset);
+            offset = Utils.stringToBytes(order.getCreatedAt().toString(), res, offset);
         }
 
         return res;

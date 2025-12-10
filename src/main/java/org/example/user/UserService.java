@@ -15,16 +15,17 @@ public class UserService {
 
     public LoginResponseDTO login(String id, String pw){
 
+        System.out.println(id + "\n" + pw);
          Optional<User> user = userDAO.findByIdAndPassword(id, pw);
 
          if(user.isEmpty()) return LoginResponseDTO.builder()
                                         .resType(ResponseType.RESPONSE)
                                         .loginResponseType(LoginResponseType.FAILURE).build();
 
-         if(!ApplicationContext.session.addSession(user.get().getId()))
-             return LoginResponseDTO.builder()
-                     .resType(ResponseType.RESPONSE)
-                     .loginResponseType(LoginResponseType.DISCONNECTED).build();
+//         if(!ApplicationContext.session.addSession(user.get().getId()))
+//             return LoginResponseDTO.builder()
+//                     .resType(ResponseType.RESPONSE)
+//                     .loginResponseType(LoginResponseType.DISCONNECTED).build();
 
          return LoginResponseDTO.builder()
                         .resType(ResponseType.RESPONSE)

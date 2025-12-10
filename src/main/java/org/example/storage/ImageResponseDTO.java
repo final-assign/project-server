@@ -16,16 +16,18 @@ public class ImageResponseDTO implements ResponseDTO {
     @Override
     public byte[] toBytes() {
         byte[] data = (imageData != null) ? imageData : new byte[0];
+        int dataLength = data.length;
 
-        int totalSize = 1 + 1 + 4 + data.length; //타입, 코드, 데이터 길이
+        // size: resType(1) + responseCode(1) + dataLength(4) + data(N)
+        int totalSize = 1 + 1 + 4 + dataLength;
         byte[] res = new byte[totalSize];
 
-        res[0] = resType.getValue();
-        res[1] = (byte) 0x21; //차피 고정이니 하드코딩
+        int offset = 0;
+        res[offset++] = resType.getValue();
+        res[offset++] = (byte) 0x21; // 이미지 응답 코드
 
-        byte[] dataLen = Utils.intToBytes(data.length);
-        System.arraycopy(dataLen, 0, res, 2, 4);
-        System.arraycopy(data, 0, res, 6, data.length);
+        offset = Utils.intToBytes(dataLength, res, offset);
+        System.arraycopy(data, 0, res, offset, dataLength);
 
         return res;
     }

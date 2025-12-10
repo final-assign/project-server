@@ -13,10 +13,10 @@ import java.util.Optional;
 public class StorageDAO {
     private final DataSource ds = PooledDataSource.getDataSource();
 
-    String sql = "SELECT * FROM STORAGE WHERE menu_id = ?";
 
     public Optional<Storage> findByMenuID(long menuID) {
         Storage storage = null;
+        String sql = "SELECT * FROM STORAGE WHERE menu_id = ?";
 
         try (Connection conn = ds.getConnection()) {
             PreparedStatement pstmt = conn.prepareStatement(sql);

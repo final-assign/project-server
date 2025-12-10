@@ -12,7 +12,10 @@ public class UserDAO {
 
     Optional<User> findByIdAndPassword(String id, String pw){
 
-        String sql = "SELECT * FROM User WHERE school_id = ? AND password = ?";
+        String sql = "SELECT * FROM USER WHERE school_id = ? AND password = ?";
+
+        System.out.println(id);
+        System.out.println(pw);
         PreparedStatement pstmt;
 
         User res = null;
