@@ -1,6 +1,9 @@
 package org.example.general;
 
+import java.nio.charset.StandardCharsets;
+
 public class Utils {
+
     public static byte[] intToBytes(int data) {
         return new byte[] {
                 (byte)((data >> 24) & 0xff),
@@ -31,5 +34,70 @@ public class Utils {
                 (0xff & data[start]) << 8 |
                         (0xff & data[start + 1]) << 0
         );
+    }
+
+    public static byte[] longToBytes(long data) {
+        return new byte[] {
+                (byte)((data >> 56) & 0xff),
+                (byte)((data >> 48) & 0xff),
+                (byte)((data >> 40) & 0xff),
+                (byte)((data >> 32) & 0xff),
+                (byte)((data >> 24) & 0xff),
+                (byte)((data >> 16) & 0xff),
+                (byte)((data >> 8) & 0xff),
+                (byte)((data >> 0) & 0xff),
+        };
+    }
+
+    public static long bytesToLong(byte[] data, int start) {
+        return (long)(
+                (long)(0xff & data[start]) << 56 |
+                        (long)(0xff & data[start + 1]) << 48 |
+                        (long)(0xff & data[start + 2]) << 40 |
+                        (long)(0xff & data[start + 3]) << 32 |
+                        (long)(0xff & data[start + 4]) << 24 |
+                        (long)(0xff & data[start + 5]) << 16 |
+                        (long)(0xff & data[start + 6]) << 8  |
+                        (long)(0xff & data[start + 7]) << 0
+        );
+    }
+
+    public static int intToBytes(int data, byte[] dest, int offset) {
+        dest[offset++] = (byte)((data >> 24) & 0xff);
+        dest[offset++] = (byte)((data >> 16) & 0xff);
+        dest[offset++] = (byte)((data >> 8) & 0xff);
+        dest[offset++] = (byte)((data >> 0) & 0xff);
+        return offset;
+    }
+
+    public static int longToBytes(long data, byte[] dest, int offset) {
+        dest[offset++] = (byte)((data >> 56) & 0xff);
+        dest[offset++] = (byte)((data >> 48) & 0xff);
+        dest[offset++] = (byte)((data >> 40) & 0xff);
+        dest[offset++] = (byte)((data >> 32) & 0xff);
+        dest[offset++] = (byte)((data >> 24) & 0xff);
+        dest[offset++] = (byte)((data >> 16) & 0xff);
+        dest[offset++] = (byte)((data >> 8) & 0xff);
+        dest[offset++] = (byte)((data >> 0) & 0xff);
+        return offset;
+    }
+
+    public static int getStrSize(String str) {
+        if (str == null) return 4;
+        return 4 + str.getBytes(StandardCharsets.UTF_8).length;
+    }
+
+    public static int stringToBytes(String str, byte[] dest, int offset) {
+        if (str == null) {
+            return intToBytes(0, dest, offset);
+        }
+
+        byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
+        int len = bytes.length;
+
+        offset = intToBytes(len, dest, offset);
+        System.arraycopy(bytes, 0, dest, offset, len);
+
+        return offset + len;
     }
 }

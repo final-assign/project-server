@@ -1,8 +1,9 @@
 package org.example.restaurant;
 
 import lombok.*;
+import org.example.menu.MenuType;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Data
 @Builder
@@ -12,6 +13,7 @@ public class RestaurantOperatingInfo {
 
     private Long id;
     private Long restaurantId;
-    private LocalDateTime startAt;
-    private LocalDateTime endAt;
+    private LocalTime startAt;
+    private LocalTime endAt;
+    private MenuType menuType;
 }
