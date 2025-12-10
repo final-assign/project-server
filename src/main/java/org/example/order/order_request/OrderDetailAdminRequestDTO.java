@@ -10,12 +10,16 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 @Getter
-public class OrderDetailRequestDTO {
+public class OrderDetailAdminRequestDTO {
+    private final long restaurantId;
     private final LocalDateTime startAt;
     private final LocalDateTime endAt;
 
-    public OrderDetailRequestDTO(byte[] body) {
+    public OrderDetailAdminRequestDTO(byte[] body) {
         int cursor = 0;
+        //식당 ID 8
+        restaurantId = Utils.bytesToLong(body, cursor);
+        cursor += 8;
 
         // startAt str len 4 + data
         int startLen = Utils.bytesToInt(body, cursor);

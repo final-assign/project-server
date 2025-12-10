@@ -2,8 +2,8 @@ package org.example.menu;
 
 import lombok.RequiredArgsConstructor;
 import org.example.general.ResponseType;
-import org.example.image.ImageResponseDTO;
-import org.example.image.StorageDAO;
+import org.example.storage.ImageResponseDTO;
+import org.example.storage.StorageDAO;
 
 import java.util.Optional;
 

@@ -1,8 +1,8 @@
 package org.example.menu;
 
 import lombok.RequiredArgsConstructor;
-import org.example.image.ImageRequestDTO;
-import org.example.image.ImageResponseDTO;
+import org.example.storage.ImageRequestDTO;
+import org.example.storage.ImageResponseDTO;
 
 //임시입니다...
 @RequiredArgsConstructor

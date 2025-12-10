@@ -17,7 +17,7 @@ public class OrderController {
 //        return orderService.getOrderByRestaurant(orderByRestaurantRequestDTO.getRestaurantId());
 //    }
 
-    public OrderDetailResponseDTO getOrderHistory(OrderDetailRequestDTO requestDTO) {
+    public OrderDetailAdminResponseDTO getOrderAdminHistory(OrderDetailAdminRequestDTO requestDTO) {
         //admin
         return orderService.getOrderHistory(
                 requestDTO.getRestaurantId(),

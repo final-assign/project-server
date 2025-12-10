@@ -75,18 +75,18 @@ public class OrderService {
 //                .build();
 //    }
 
-    public OrderDetailResponseDTO getOrderHistory(Long restaurantId, LocalDateTime startAt, LocalDateTime endAt) {
+    public OrderDetailAdminResponseDTO getOrderHistory(Long restaurantId, LocalDateTime startAt, LocalDateTime endAt) {
         List<OrderDetail> orders = orderDetailDAO.findByRestaurantAndTime(restaurantId, startAt, endAt);
 
         //결과가 없으면 빈 리스트
         if (orders.isEmpty()) {
-             return OrderDetailResponseDTO.builder()
+             return OrderDetailAdminResponseDTO.builder()
                     .responseType(ResponseType.RESPONSE)
                     .orders(Collections.emptyList())
                     .build();
         }
 
-        return OrderDetailResponseDTO.builder()
+        return OrderDetailAdminResponseDTO.builder()
                 .responseType(ResponseType.RESPONSE)
                 .orders(orders)
                 .build();

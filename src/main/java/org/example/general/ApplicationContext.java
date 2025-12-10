@@ -5,7 +5,7 @@ import org.example.coupon.CouponDAO;
 import org.example.coupon.CouponService;
 import org.example.menu.MenuController;
 import org.example.menu.MenuService;
-import org.example.image.StorageDAO;
+import org.example.storage.StorageDAO;
 import org.example.order.OrderController;
 import org.example.order.OrderService;
 import org.example.order.order_request.OrderDetailDAO;

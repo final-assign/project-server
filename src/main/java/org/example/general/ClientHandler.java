@@ -3,8 +3,9 @@ package org.example.general;
 import org.example.login.LoginRequestDTO;
 import org.example.login.LoginResponseDTO;
 import org.example.login.LoginResponseType;
-import org.example.image.ImageRequestDTO;
 import org.example.order.order_request.OrderDetailRequestDTO;
+import org.example.storage.ImageRequestDTO;
+import org.example.order.order_request.OrderDetailAdminRequestDTO;
 import org.example.user.User;
 import org.example.user.UserType;
 
@@ -108,7 +109,7 @@ public class ClientHandler extends Thread {
                         data = new byte[Utils.bytesToInt(header, 2)];
                         dis.readFully(data);
 
-                        responseDTO = ApplicationContext.orderController.getOrderHistory(new OrderDetailRequestDTO(data));
+                        responseDTO = ApplicationContext.orderController.getOrderAdminHistory(new OrderDetailAdminRequestDTO(data));
                     }
 
                     case (byte) 0xA3 -> {
