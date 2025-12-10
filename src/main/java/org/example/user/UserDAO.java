@@ -67,4 +67,29 @@ public class UserDAO {
 
             return false;
         }
+    UserType findTypeById(Long id){
+
+        String sql = "SELECT type FROM User WHERE id = ?";
+        PreparedStatement pstmt;
+        UserType res = null;
+
+        try (Connection conn = ds.getConnection()) {
+
+            pstmt = conn.prepareStatement(sql);
+            pstmt.setLong(1, id);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+
+                if (rs.next()) {
+
+                    res = UserType.valueOf(rs.getString("type"));
+                }
+            }
+        } catch (SQLException e) {
+
+            e.printStackTrace();
+        }
+
+        return res;
+    }
 }

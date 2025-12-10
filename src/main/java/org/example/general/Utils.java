@@ -3,6 +3,7 @@ package org.example.general;
 import java.nio.charset.StandardCharsets;
 
 public class Utils {
+
     public static byte[] intToBytes(int data) {
         return new byte[]{
                 (byte) ((data >> 24) & 0xff),
@@ -36,49 +37,67 @@ public class Utils {
     }
 
     public static byte[] longToBytes(long data) {
-        return new byte[]{
-                (byte) ((data >> 56) & 0xff),
-                (byte) ((data >> 48) & 0xff),
-                (byte) ((data >> 40) & 0xff),
-                (byte) ((data >> 32) & 0xff),
-                (byte) ((data >> 24) & 0xff),
-                (byte) ((data >> 16) & 0xff),
-                (byte) ((data >> 8) & 0xff),
-                (byte) ((data >> 0) & 0xff),
+        return new byte[] {
+                (byte)((data >> 56) & 0xff),
+                (byte)((data >> 48) & 0xff),
+                (byte)((data >> 40) & 0xff),
+                (byte)((data >> 32) & 0xff),
+                (byte)((data >> 24) & 0xff),
+                (byte)((data >> 16) & 0xff),
+                (byte)((data >> 8) & 0xff),
+                (byte)((data >> 0) & 0xff),
         };
     }
 
     public static long bytesToLong(byte[] data, int start) {
-        return (long) (
-                (long) (0xff & data[start]) << 56 |
-                        (long) (0xff & data[start + 1]) << 48 |
-                        (long) (0xff & data[start + 2]) << 40 |
-                        (long) (0xff & data[start + 3]) << 32 |
-                        (long) (0xff & data[start + 4]) << 24 |
-                        (long) (0xff & data[start + 5]) << 16 |
-                        (long) (0xff & data[start + 6]) << 8 |
-                        (long) (0xff & data[start + 7]) << 0
+        return (long)(
+                (long)(0xff & data[start]) << 56 |
+                        (long)(0xff & data[start + 1]) << 48 |
+                        (long)(0xff & data[start + 2]) << 40 |
+                        (long)(0xff & data[start + 3]) << 32 |
+                        (long)(0xff & data[start + 4]) << 24 |
+                        (long)(0xff & data[start + 5]) << 16 |
+                        (long)(0xff & data[start + 6]) << 8  |
+                        (long)(0xff & data[start + 7]) << 0
         );
     }
 
-    //문자열 길이 구하는 함수
-    public static int getByteLength(String str) {
-        return (str == null) ? 0 : str.getBytes(StandardCharsets.UTF_8).length;
+    public static int intToBytes(int data, byte[] dest, int offset) {
+        dest[offset++] = (byte)((data >> 24) & 0xff);
+        dest[offset++] = (byte)((data >> 16) & 0xff);
+        dest[offset++] = (byte)((data >> 8) & 0xff);
+        dest[offset++] = (byte)((data >> 0) & 0xff);
+        return offset;
     }
 
-    //배열에 문자열 쓰는 함수
-    public static int writeString(byte[] dest, int cursor, String str) {
-        if (str == null) str = "";
+    public static int longToBytes(long data, byte[] dest, int offset) {
+        dest[offset++] = (byte)((data >> 56) & 0xff);
+        dest[offset++] = (byte)((data >> 48) & 0xff);
+        dest[offset++] = (byte)((data >> 40) & 0xff);
+        dest[offset++] = (byte)((data >> 32) & 0xff);
+        dest[offset++] = (byte)((data >> 24) & 0xff);
+        dest[offset++] = (byte)((data >> 16) & 0xff);
+        dest[offset++] = (byte)((data >> 8) & 0xff);
+        dest[offset++] = (byte)((data >> 0) & 0xff);
+        return offset;
+    }
 
-        byte[] bytes = str.getBytes(StandardCharsets.UTF_8);//utf8 체크용
+    public static int getStrSize(String str) {
+        if (str == null) return 4;
+        return 4 + str.getBytes(StandardCharsets.UTF_8).length;
+    }
 
-        //문자열 길이
-        System.arraycopy(Utils.intToBytes(bytes.length), 0, dest, cursor, 4);
-        cursor += 4;
-        //문자열
-        System.arraycopy(bytes, 0, dest, cursor, bytes.length);
-        cursor += bytes.length;
+    public static int stringToBytes(String str, byte[] dest, int offset) {
+        if (str == null) {
+            return intToBytes(0, dest, offset);
+        }
 
-        return cursor;
+        byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
+        int len = bytes.length;
+
+        offset = intToBytes(len, dest, offset);
+        System.arraycopy(bytes, 0, dest, offset, len);
+
+        return offset + len;
     }
 }

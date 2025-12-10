@@ -2,6 +2,8 @@ package org.example.menu;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
