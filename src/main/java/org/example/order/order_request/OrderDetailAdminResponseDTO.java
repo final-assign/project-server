@@ -68,7 +68,7 @@ public class OrderDetailAdminResponseDTO implements ResponseDTO {
             //결제 가격
             System.arraycopy(Utils.intToBytes(4), 0, res, cursor, 4);
             cursor += 4;
-            System.arraycopy(Utils.intToBytes(order.getPurchasePrice()), 0, res, cursor, 4);
+            System.arraycopy(Utils.intToBytes(order.getPrice()), 0, res, cursor, 4);
             cursor += 4;
 
             //쿠폰 가격

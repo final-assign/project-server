@@ -17,5 +17,5 @@ public class Order {
     private OrderStatus status;
     private LocalDateTime createdAt;
     private int amount;
-    private int purchasePrice;
+    private int price;
 }

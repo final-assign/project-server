@@ -22,5 +22,5 @@ public class OrderDetail {
     private PurchaseType purchaseType;
     private OrderStatus status;
     private LocalDateTime createdAt;
-    private int purchasePrice;
+    private int price;
 }
