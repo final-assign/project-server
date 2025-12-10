@@ -1,9 +1,12 @@
 package org.example.menu;
 
 import lombok.RequiredArgsConstructor;
+import org.example.general.ResponseType;
+import org.example.storage.ImageResponseDTO;
+import org.example.storage.StorageDAO;
 import org.example.db.PooledDataSource;
 import org.example.general.Pair;
-
+import java.util.Optional;
 import javax.sql.DataSource;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
@@ -13,8 +16,8 @@ import java.util.ArrayList;
 
 @RequiredArgsConstructor
 public class MenuService {
-
     private final MenuDAO menuDAO;
+    private final StorageDAO storageDAO;
     // private final RestaurantDAO restaurantDAO; // [삭제] 이제 필요 없음!
     private final DataSource ds = PooledDataSource.getDataSource();
 
@@ -35,7 +38,7 @@ public class MenuService {
                 try {
                     Long generatedMenuId = processSingleLine(conn, line);
                     conn.commit();
-                    successList.add(new Pair<>((long)(i + 1), generatedMenuId));
+                    successList.add(new Pair<>((long) (i + 1), generatedMenuId));
 
                 } catch (Exception e) {
                     conn.rollback();
@@ -84,75 +87,24 @@ public class MenuService {
         menu.setStudentPrice(studentPrice);
         menu.setAmount(amount);
 
-        if (saleDate != null) {
-            menu.setStartSalesAt(saleDate);
-            menu.setEndSalesAt(saleDate);
-        }
+        return 1L;
 
-        // 5. DB 저장
-        Long savedMenuId = menuDAO.insert(conn, menu);
-        if (savedMenuId == null) throw new SQLException("메뉴 저장 실패");
-
-        MenuAvailability availability = new MenuAvailability();
-        availability.setMenuId(savedMenuId);
-        availability.setMenuTypeId(menuTypeId); // 파싱한 ID 바로 주입
-
-        menuDAO.insertAvailability(conn, availability);
-
-        return savedMenuId;
     }
 
-    public MenuRegisterResponseDTO registerMenu(MenuRegisterRequestDTO req) {
+    public ImageResponseDTO findImage(long menuId) {
+        Optional<Storage> storage = storageDAO.findByMenuID(menuId);
 
-        try (Connection conn = ds.getConnection()) {
-            conn.setAutoCommit(false); // 트랜잭션 시작
-
-            try {
-                // 1. Menu 객체 생성 (Builder 패턴 적용)
-                Menu.MenuBuilder builder = Menu.builder()
-                        .restaurantId(req.getRestId())
-                        .menuName(req.getMenuName())
-                        .standardPrice(req.getStandardPrice())
-                        .studentPrice(req.getStudentPrice())
-                        .amount(req.getDefaultAmount());
-
-                if (req.getStartSalesAt() != null) {
-                    builder.startSalesAt(req.getStartSalesAt());
-                }
-                if (req.getEndSalesAt() != null) {
-                    builder.endSalesAt(req.getEndSalesAt());
-                }
-
-                // 최종 객체 생성
-                Menu menu = builder.build();
-
-                // 2. DB 저장 (Menu)
-                Long savedMenuId = menuDAO.insert(conn, menu);
-                if (savedMenuId == null) {
-                    throw new SQLException("메뉴 저장 실패 (ID 반환 없음)");
-                }
-
-                // 3. DB 저장 (Availability - 시간대 연결)
-                MenuAvailability availability = new MenuAvailability();
-                availability.setMenuId(savedMenuId);
-                availability.setMenuTypeId(req.getMenuTypeId());
-
-                menuDAO.insertAvailability(conn, availability);
-
-                // 4. 성공 시 커밋
-                conn.commit();
-
-                // 5. 응답 DTO 반환
-                return new MenuRegisterResponseDTO(savedMenuId);
-
-            } catch (Exception e) {
-                conn.rollback(); // 실패 시 롤백
-                throw new RuntimeException("메뉴 등록 중 오류 발생", e);
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("DB 연결 오류", e);
+        if (storage.isEmpty()) {
+            return ImageResponseDTO.builder()
+                    .resType(ResponseType.RESPONSE)
+                    .imageData(new byte[0])
+                    .build();
         }
+
+        return ImageResponseDTO.builder()
+                .resType(ResponseType.RESPONSE)
+                .imageData(storage.get().getFileData())
+                .build();
     }
+
 }

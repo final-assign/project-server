@@ -7,12 +7,13 @@ import org.example.coupon.CouponService;
 import org.example.menu.MenuController;
 import org.example.menu.MenuDAO;
 import org.example.menu.MenuService;
-import org.example.menu.StorageDAO;
 import org.example.order.OrderController;
 import org.example.order.OrderDAO;
 import org.example.order.OrderService;
+import org.example.order.order_request.OrderDetailDAO;
 import org.example.restaurant.RestaurantController;
 import org.example.restaurant.RestaurantDAO;
+import org.example.storage.StorageDAO;
 import org.example.user.UserController;
 import org.example.user.UserDAO;
 import org.example.user.UserService;
@@ -38,14 +39,14 @@ public class ApplicationContext {
 
     static {
 
-        storageDAO = new StorageDAO();
         UserDAO dao = new UserDAO();
         userService = new UserService(dao);
         userController = new UserController(userService);
+        storageDAO = new StorageDAO();
         menuDAO = new MenuDAO();
         restaurantDAO = new RestaurantDAO();
-        menuService = new MenuService(menuDAO);
-        menuController = new MenuController(menuDAO, menuService, restaurantDAO);
+        menuService = new MenuService(menuDAO, storageDAO);
+        menuController = new MenuController(menuService, menuDAO, restaurantDAO);
         restaurantController = new RestaurantController(restaurantDAO, userService);
 
         CouponDAO couponDAO = new CouponDAO();
@@ -54,7 +55,8 @@ public class ApplicationContext {
 
         // Order-related instances
         OrderDAO orderDAO = new OrderDAO();
-        OrderService orderService = new OrderService(menuDAO, orderDAO);
+        OrderDetailDAO orderDetailDAO = new OrderDetailDAO();
+        OrderService orderService = new OrderService(orderDetailDAO,menuDAO, orderDAO);
         orderController = new OrderController(orderService);
     }
 }

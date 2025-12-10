@@ -2,6 +2,8 @@ package org.example.order;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -13,6 +15,7 @@ public class Order {
     private Long couponId;
     private PurchaseType purchaseType;
     private OrderStatus status;
-    private String createdAt;
+    private LocalDateTime createdAt;
     private int amount;
+    private int price;
 }

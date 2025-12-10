@@ -1,9 +1,13 @@
 package org.example.coupon;
 
 import lombok.RequiredArgsConstructor;
+import org.example.general.ResponseType;
 import org.example.menu.Menu;
 import org.example.menu.MenuDAO;
 import org.example.user.UserType;
+
+import java.util.Collections;
+import java.util.List;
 
 @RequiredArgsConstructor
 public class CouponService {
@@ -11,10 +15,21 @@ public class CouponService {
     private final MenuDAO menuDAO;
     private final CouponDAO couponDAO;
 
-    /**
-     * 메뉴에 대한 쿠폰 2종(STAFF, STUDENT)을 생성합니다.
-     * 트랜잭션 안에서 처리되어야 합니다.
-     */
+    public CouponResponseDTO getAllCoupons(long userId) {
+        List<CouponDetail> coupons = couponDAO.findByUserId(userId);
+        if (coupons.isEmpty()) {
+            return CouponResponseDTO.builder()
+                    .resType(ResponseType.RESPONSE)
+                    .coupons(Collections.emptyList())
+                    .build();
+        } else {
+            return CouponResponseDTO.builder()
+                    .resType(ResponseType.RESPONSE)
+                    .coupons(coupons)
+                    .build();
+        }
+    }
+
     public void createCouponsForMenu(CouponCreateRequestDTO requestDTO) {
         // 1. DTO에서 정보 추출
         Long restId = requestDTO.getRestId();
