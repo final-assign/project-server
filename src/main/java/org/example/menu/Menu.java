@@ -1,6 +1,11 @@
 package org.example.menu;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -12,6 +17,7 @@ public class Menu {
     private String menuName;
     private int standardPrice;
     private Integer studentPrice;
-    private Integer employeePrice;
     private int amount;
+    private LocalDate startSalesAt;
+    private LocalDate endSalesAt;
 }

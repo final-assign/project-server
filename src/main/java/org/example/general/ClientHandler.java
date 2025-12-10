@@ -3,6 +3,8 @@ package org.example.general;
 import org.example.login.LoginRequestDTO;
 import org.example.login.LoginResponseDTO;
 import org.example.login.LoginResponseType;
+import org.example.menu.MenuRegisterRequestDTO;
+import org.example.restaurant.RestaurantListResponseDTO;
 import org.example.user.User;
 
 import java.io.*;
@@ -30,20 +32,23 @@ public class ClientHandler extends Thread{
 
         byte[] header = new byte[1 + 1 + 4];
         byte[] data = null;
-        Long userId; //유저의 아이디, 조인할 때 필요
+
+        Long userId = 0L; //유저의 아이디, 조인할 때 필요 일단 stateful.
         try{
+
             is = commSocket.getInputStream();
             br = new BufferedReader(new InputStreamReader(is));
-            dis = new DataInputStream(is);
+            dis = new DataInputStream(is); //입력 받아올 때
             os = commSocket.getOutputStream();
             bw = new BufferedWriter(new OutputStreamWriter(os));
-            dos = new DataOutputStream(os);
+            dos = new DataOutputStream(os); //응답할 때
 
 
             dos.write(loginRequestPacket);
             dos.flush();
 
             ResponseDTO responseDTO = null;
+
             while(true){
 
                 dis.readFully(header);
@@ -51,6 +56,7 @@ public class ClientHandler extends Thread{
                 switch (header[1]) {
 
                     case 0x01 -> {
+
                         data = new byte[Utils.bytesToInt(header, 2)];
                         dis.readFully(data);
                         LoginResponseDTO loginResponseDTO = ApplicationContext.userController.login(new LoginRequestDTO(data));
@@ -60,8 +66,19 @@ public class ClientHandler extends Thread{
 
                         responseDTO = loginResponseDTO;
                     }
-                }
 
+                    case (byte) 0x80 -> {
+
+                        responseDTO = ApplicationContext.getRestaurantController().getRestaurantListAll(userId);
+                    }
+
+                    case (byte) 0x81 -> {
+
+                        data = new byte[Utils.bytesToInt(header, 2)];
+                        dis.readFully(data);
+                        responseDTO = ApplicationContext.getMenuController().registerMenu(new MenuRegisterRequestDTO(data));
+                    }
+                }
                 if(header[0] == 0x7E) break;
                 dos.write(responseDTO.toBytes());
                 dos.flush();

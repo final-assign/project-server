@@ -15,7 +15,7 @@ public class RestaurantManagerApp {
         Socket commSocket = null;
 
         try{
-            listenSocket = new ServerSocket(PORT);
+            listenSocket = new ServerSocket(PORT); //서버 열기
             System.out.println("Waiting for connection...");
 
             while(true){

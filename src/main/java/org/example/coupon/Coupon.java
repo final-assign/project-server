@@ -1,6 +1,10 @@
 package org.example.coupon;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.example.user.UserType;
 
 @Data
 @Builder
@@ -8,6 +12,8 @@ import lombok.*;
 @AllArgsConstructor
 public class Coupon {
     private Long id;
+    private Long restId;
     private Long menuId;
-    private Long couponPrice;
+    private UserType userType;
+    private Integer couponPrice;
 }
