@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.example.general.ResponseDTO;
 import org.example.general.Utils;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,9 +16,21 @@ public class RestaurantListResponseDTO implements ResponseDTO {
 
     @Override
     public byte[] toBytes() {
-        byte[] data = getBytes();
+        // 1. 데이터(Payload) 크기 계산
+        int payloadSize = calculatePayloadSize();
+
+        // 2. 전체 배열 생성: 헤더(6바이트) + 데이터 크기
+        byte[] data = new byte[6 + payloadSize];
         int offset = 0;
 
+        // 3. 헤더 작성 [0x02] [0x81] 시간나면 refactor
+        data[offset++] = 0x02;
+        data[offset++] = (byte) 0x81;
+
+        // 4. 데이터 길이 작성 (4바이트)
+        offset = Utils.intToBytes(payloadSize, data, offset);
+
+        // 5. 리스트 데이터 직렬화
         offset = Utils.intToBytes(list.size(), data, offset);
 
         for (Restaurant r : list) {
@@ -31,7 +42,6 @@ public class RestaurantListResponseDTO implements ResponseDTO {
             offset = Utils.intToBytes(infos.size(), data, offset);
 
             for (RestaurantOperatingInfo info : infos) {
-
                 offset = Utils.longToBytes(info.getId(), data, offset);
                 offset = Utils.longToBytes(info.getRestaurantId(), data, offset);
                 offset = Utils.stringToBytes(info.getStartAt().toString(), data, offset);
@@ -45,29 +55,27 @@ public class RestaurantListResponseDTO implements ResponseDTO {
         return data;
     }
 
-    private byte[] getBytes() {
-        int totalSize = 0;
-        totalSize += 4;
+    private int calculatePayloadSize() {
+        int size = 0;
+        size += 4; // list size
 
         for (Restaurant r : list) {
-            totalSize += 8;
-            totalSize += Utils.getStrSize(r.getName().name());
-            totalSize += Utils.getStrSize(r.getDescription());
+            size += 8; // id
+            size += Utils.getStrSize(r.getName().name());
+            size += Utils.getStrSize(r.getDescription());
 
-            totalSize += 4;
+            size += 4; // operating infos size
 
             for (RestaurantOperatingInfo info : r.getOperatingInfos()) {
-                totalSize += 8;
-                totalSize += 8;
-                totalSize += Utils.getStrSize(info.getStartAt().toString());
-                totalSize += Utils.getStrSize(info.getEndAt().toString());
+                size += 8; // id
+                size += 8; // restaurantId
+                size += Utils.getStrSize(info.getStartAt().toString());
+                size += Utils.getStrSize(info.getEndAt().toString());
 
-                totalSize += 8;
-                totalSize += Utils.getStrSize(info.getMenuType().getName().name());
+                size += 8; // menuType Id
+                size += Utils.getStrSize(info.getMenuType().getName().name());
             }
         }
-
-        byte[] data = new byte[totalSize];
-        return data;
+        return size;
     }
 }
