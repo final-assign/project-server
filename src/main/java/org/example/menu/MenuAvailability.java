@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MenuAvailability {
+
     private Long menuId;
     private Long menuTypeId;
     private LocalDateTime salesAt;

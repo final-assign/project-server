@@ -31,6 +31,7 @@ public class RestaurantListResponseDTO implements ResponseDTO {
             offset = Utils.intToBytes(infos.size(), data, offset);
 
             for (RestaurantOperatingInfo info : infos) {
+
                 offset = Utils.longToBytes(info.getId(), data, offset);
                 offset = Utils.longToBytes(info.getRestaurantId(), data, offset);
                 offset = Utils.stringToBytes(info.getStartAt().toString(), data, offset);
