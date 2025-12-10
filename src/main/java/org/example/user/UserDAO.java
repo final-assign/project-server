@@ -40,4 +40,31 @@ public class UserDAO {
 
         return Optional.ofNullable(res);
     }
+
+    public boolean isAdmin(long userId){
+
+            String sql = "SELECT * FROM User WHERE school_id = ? AND password = ?";
+            PreparedStatement pstmt;
+
+            User res = null;
+
+            try (Connection conn = ds.getConnection()) {
+
+                pstmt = conn.prepareStatement(sql);
+                pstmt.setLong(1, userId);
+
+
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next())
+                        //관리자면 true 리턴
+                        if(rs.getString("type").equals(UserType.ADMIN.name()))
+                            return true;
+
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            return false;
+        }
 }

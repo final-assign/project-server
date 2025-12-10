@@ -9,5 +9,5 @@ import lombok.*;
 public class Coupon {
     private Long id;
     private Long menuId;
-    private Long couponPrice;
+    private int price;
 }

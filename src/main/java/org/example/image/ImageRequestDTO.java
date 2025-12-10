@@ -1,4 +1,4 @@
-package org.example.menu.img_down;
+package org.example.image;
 
 import lombok.Getter;
 import org.example.general.Utils;
@@ -9,6 +9,10 @@ public class ImageRequestDTO {
 
     //클라이언트가 보낸 메뉴 id 파싱
     public ImageRequestDTO(byte[] body) {
-        this.menuId = Utils.bytesToLong(body, 0);
+        int cursor = 0;
+
+        int menuIdLen = Utils.bytesToShort(body, cursor);
+        cursor += 2;
+        this.menuId = Utils.bytesToLong(body, cursor);
     }
 }

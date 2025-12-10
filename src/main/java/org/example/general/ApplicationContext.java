@@ -5,7 +5,7 @@ import org.example.coupon.CouponDAO;
 import org.example.coupon.CouponService;
 import org.example.menu.MenuController;
 import org.example.menu.MenuService;
-import org.example.menu.img_down.StorageDAO;
+import org.example.image.StorageDAO;
 import org.example.order.OrderController;
 import org.example.order.OrderService;
 import org.example.order.order_request.OrderDetailDAO;
@@ -24,6 +24,7 @@ public class ApplicationContext {
     public static final OrderController orderController;
     public static final CouponService couponService;
     public static final CouponController couponController;
+    public static final StorageDAO storageDAO;
 
     static {
 
@@ -31,7 +32,7 @@ public class ApplicationContext {
         userService = new UserService(dao);
         userController = new UserController(userService);
 
-        StorageDAO storageDAO = new StorageDAO();
+        storageDAO = new StorageDAO();
         menuService = new MenuService(storageDAO);
         menuController = new MenuController(menuService);
 
