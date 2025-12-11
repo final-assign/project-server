@@ -22,4 +22,9 @@ public class RestaurantController {
         return RestaurantListResponseDTO.builder()
                 .list(restaurantDAO.findAll()).build();
     }
+    public ResponseDTO getUserRestaurantID(Long userId){
+        return RestaurantListResponseDTO.builder()
+                .list(restaurantDAO.userFindAll(userService.getUserType(userId))).build();
+    }
+
 }

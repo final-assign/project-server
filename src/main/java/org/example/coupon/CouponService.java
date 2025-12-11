@@ -1,9 +1,13 @@
 package org.example.coupon;
 
 import lombok.RequiredArgsConstructor;
+import org.example.dao.DBConnection;
 import org.example.menu.Menu;
 import org.example.menu.MenuDAO;
 import org.example.user.UserType;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 
 @RequiredArgsConstructor
 public class CouponService {
@@ -49,4 +53,26 @@ public class CouponService {
         couponDAO.insert(staffCoupon);
         couponDAO.insert(studentCoupon);
     }
-}
+    // CouponService.java
+// ... (생략)
+
+    public boolean reduceCouponStock(int userId, int couponId) {
+        String sql = "UPDATE coupon_inventory SET count = count - 1 WHERE user_id = ? AND coupon_id = ? AND count > 0";
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            pst.setInt(1, userId);
+            pst.setInt(2, couponId);
+
+            int affected = pst.executeUpdate();
+
+            // 쿼리 실행 성공 시, 업데이트된 행이 1개 이상이면 true 반환
+            return affected > 0;
+
+        } catch (Exception e) {
+            // DB 연결 또는 쿼리 실행 실패 시, 예외를 런타임 예외로 감싸서 다시 던짐 (throw)
+            throw new RuntimeException("쿠폰 차감 실패.", e);
+        }
+
+    }
+    }

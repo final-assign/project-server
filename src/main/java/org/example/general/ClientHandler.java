@@ -33,7 +33,7 @@ public class ClientHandler extends Thread{
         byte[] header = new byte[1 + 1 + 4];
         byte[] data = null;
 
-        Long userId = 0L; //유저의 아이디, 조인할 때 필요 일단 stateful.
+        Long userId = 0L;
         try{
 
             is = commSocket.getInputStream();
@@ -66,6 +66,21 @@ public class ClientHandler extends Thread{
 
                         responseDTO = loginResponseDTO;
                     }
+                    case 0x11 -> {
+                        data = new byte[Utils.bytesToInt(header, 2)];
+                        dis.readFully(data);
+                        responseDTO = ApplicationContext.getRestaurantController().getUserRestaurantID(userId);
+
+
+                    }
+                    case 0x12 -> {
+                        data = new byte[Utils.bytesToInt(header, 2)];
+                        dis.readFully(data);
+                        responseDTO = ApplicationContext.getRestaurantController().getUserRestaurantID(userId);
+                    }
+
+
+
 
                     case (byte) 0x80 -> {
 
@@ -79,6 +94,7 @@ public class ClientHandler extends Thread{
                         responseDTO = ApplicationContext.getMenuController().registerMenu(new MenuRegisterRequestDTO(data));
                     }
                 }
+
                 if(header[0] == 0x7E) break;
                 dos.write(responseDTO.toBytes());
                 dos.flush();

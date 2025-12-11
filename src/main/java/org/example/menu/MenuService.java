@@ -10,6 +10,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 public class MenuService {
@@ -154,5 +155,13 @@ public class MenuService {
             e.printStackTrace();
             throw new RuntimeException("DB 연결 오류", e);
         }
+    }
+    //..
+
+    public List<MenuListResponseDTO> getMenusByRestaurant(long restaurantId) {
+
+        List<MenuListResponseDTO> menus = menuDAO.findMenusByRestaurantId(restaurantId);
+
+        return menus;
     }
 }

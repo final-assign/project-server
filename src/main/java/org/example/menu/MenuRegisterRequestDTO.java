@@ -16,11 +16,9 @@ public class MenuRegisterRequestDTO {
     final private Integer studentPrice;
     final private Integer defaultAmount;
 
-    // [변경] 시작일, 종료일 분리 (yyyy-MM-dd)
     final private LocalDate startSalesAt;
     final private LocalDate endSalesAt;
 
-    // [추가] 메뉴 타입 ID (조식/중식/석식 등)
     final private Long menuTypeId;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -49,22 +47,20 @@ public class MenuRegisterRequestDTO {
         this.defaultAmount = Utils.bytesToInt(body, cursor);
         cursor += 4;
 
-        // 4. 판매 시작일 (Length + String "2025-12-01")
         short startDateLength = Utils.bytesToShort(body, cursor);
         cursor += 2;
         if (startDateLength == 0) {
-            this.startSalesAt = null; // 상시 판매 (시작일 없음)
+            this.startSalesAt = null;
         } else {
             String dateString = new String(body, cursor, startDateLength, StandardCharsets.UTF_8);
             this.startSalesAt = LocalDate.parse(dateString, DATE_FORMATTER);
             cursor += startDateLength;
         }
 
-        // 5. 판매 종료일 (Length + String "2025-12-01")
         short endDateLength = Utils.bytesToShort(body, cursor);
         cursor += 2;
         if (endDateLength == 0) {
-            this.endSalesAt = null; // 상시 판매 (종료일 없음)
+            this.endSalesAt = null;
         } else {
             String dateString = new String(body, cursor, endDateLength, StandardCharsets.UTF_8);
             this.endSalesAt = LocalDate.parse(dateString, DATE_FORMATTER);

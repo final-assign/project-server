@@ -12,6 +12,7 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class RestaurantDAO {
 
@@ -87,4 +88,112 @@ public class RestaurantDAO {
 
         return res;
     }
+
+    public Restaurant findById(long restaurantId, Connection conn) {
+
+        String sql = "SELECT id, name, description FROM Restaurant WHERE id = ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, restaurantId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+
+                    String nameString = rs.getString("name");
+
+                    return Restaurant.builder()
+                            .id(rs.getLong("id"))
+                            .name(RestaurantName.valueOf(nameString.toUpperCase()))
+                            .description(rs.getString("description"))
+                            .operatingInfos(null)
+                            .build();
+                }
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Restaurant findById(long restaurantId) {
+        try (Connection conn = ds.getConnection()) {
+            return findById(restaurantId, conn);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public ArrayList<Restaurant> userFindAll(UserType userType) {
+
+        String sql = """
+            SELECT 
+                r.id AS r_id, 
+                r.name AS r_name, 
+                r.description AS r_desc,
+                roi.id AS roi_id, 
+                roi.restaurant_id, 
+                roi.start_at, 
+                roi.end_at,
+                mt.id AS mt_id,
+                mt.name AS mt_name
+            FROM RESTAURANT r
+            LEFT JOIN RESTAURANT_OPERATING_INFO roi ON r.id = roi.restaurant_id
+            LEFT JOIN MENU_TYPE mt ON roi.menu_type_id = mt.id
+            ORDER BY r.id ASC
+        """;
+
+        ArrayList<Restaurant> res = new ArrayList<>();
+
+        try (Connection conn = ds.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            ResultSet rs = pstmt.executeQuery();
+
+            Long currentRestaurantId = -1L;
+            Restaurant currentRestaurant = null;
+
+            while (rs.next()) {
+                Long rId = rs.getLong("r_id");
+
+                if (!rId.equals(currentRestaurantId)) {
+                    if(userType == UserType.STAFF && Objects.equals(rs.getString("r_name"), "STUDENT_CAFETERIA"))
+                        continue;
+                    currentRestaurant = Restaurant.builder()
+                            .id(rId)
+                            .description(rs.getString("r_desc"))
+                            .name(RestaurantName.valueOf(rs.getString("r_name")))
+                            .operatingInfos(new ArrayList<>())
+                            .build();
+
+                    res.add(currentRestaurant);
+                    currentRestaurantId = rId;
+                }
+
+                long roiId = rs.getLong("roi_id");
+
+                if (roiId != 0 && currentRestaurant != null) {
+                    MenuType menuTypeObj = MenuType.builder()
+                            .id(rs.getLong("mt_id"))
+                            .name(MenuTypeName.valueOf(rs.getString("mt_name")))
+                            .build();
+
+                    RestaurantOperatingInfo info = RestaurantOperatingInfo.builder()
+                            .id(roiId)
+                            .restaurantId(rId)
+                            .startAt(rs.getTime("start_at").toLocalTime())
+                            .endAt(rs.getTime("end_at").toLocalTime())
+                            .menuType(menuTypeObj)
+                            .build();
+
+                    currentRestaurant.getOperatingInfos().add(info);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return res;
+    }
+
+
 }

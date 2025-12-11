@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.general.Pair;
 import org.example.restaurant.Restaurant;
 import org.example.restaurant.RestaurantDAO;
+import org.example.restaurant.RestaurantDetailDTO;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -18,10 +19,20 @@ public class MenuController {
     final private MenuService menuService;
     final private RestaurantDAO restaurantDAO;
 
-    public MenuRegisterResponseDTO registerMenu(MenuRegisterRequestDTO req){
+    public MenuRegisterResponseDTO registerMenu(MenuRegisterRequestDTO req) {
 
         return menuService.registerMenu(req);
     }
+}
+//    public List<MenuListResponseDTO> getMenusForClient(long restaurantId) {
+//        return menuService.getMenusByRestaurant(restaurantId);
+//    }
+//
+//    public RestaurantDetailDTO getRestaurantDetails(long restaurantId) {        //식당 데이터
+//        List<MenuListResponseDTO> menus = menuService.getMenusByRestaurant(restaurantId);
+//        return null;
+//    }
+//}
 
 //    public MenuBatchResponseDTO registerMenuByCSV(MenuBatchRequestDTO req) {
 //
@@ -105,4 +116,4 @@ public class MenuController {
 //                //.successList(successList)
 //                .build();
 //    }
-}
+

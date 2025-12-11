@@ -1,6 +1,8 @@
 package org.example.menu;
 
 import org.example.db.PooledDataSource;
+import java.util.List;
+import java.util.ArrayList;
 
 import javax.sql.DataSource;
 import java.sql.*;
@@ -32,7 +34,7 @@ public class MenuDAO {
             throw new RuntimeException(e);
         }
     }
-    
+
     // Overloaded method for non-transactional reads
     public Menu findById(long menuId) {
         try (Connection conn = ds.getConnection()) {
@@ -96,8 +98,6 @@ public class MenuDAO {
         }
     }
 
-    // 2. 메뉴 - 타입 연결 (MENU_AVAILABILITY 테이블)
-    // 사진 스키마에 따라 날짜(sales_at) 제거함
     public void insertAvailability(Connection conn, MenuAvailability availability) {
         String sql = "INSERT INTO MenuAvailability (menu_id, menu_type_id) VALUES (?, ?)";
 
@@ -110,6 +110,5 @@ public class MenuDAO {
             throw new RuntimeException(e);
         }
     }
-
-
+ public List<Menu>
 }

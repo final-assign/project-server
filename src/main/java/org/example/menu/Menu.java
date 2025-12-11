@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Data
 @Builder
@@ -20,4 +21,5 @@ public class Menu {
     private int amount;
     private LocalDate startSalesAt;
     private LocalDate endSalesAt;
-}
+
+    }
