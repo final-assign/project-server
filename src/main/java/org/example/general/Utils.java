@@ -29,6 +29,13 @@ public class Utils {
         };
     }
 
+    public static int shortToBytes(int data, byte[] dest, int offset) {
+
+        dest[offset++] = (byte)((data >> 8) & 0xff);
+        dest[offset++] = (byte)((data >> 0) & 0xff);
+        return offset;
+    }
+
     public static short bytesToShort(byte[] data, int start) {
         return (short)(
                 (0xff & data[start]) << 8 |

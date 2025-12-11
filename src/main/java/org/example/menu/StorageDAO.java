@@ -14,13 +14,13 @@ public class StorageDAO {
 
     private final DataSource ds = PooledDataSource.getDataSource();
 
-    public int insert(int menuId, InputStream fileInputStream, long fileLength) {
-        String sql = "INSERT INTO storage (menu_id, file_data) VALUES (?, ?)";
+    public int insert(Long menuId, InputStream fileInputStream, long fileLength) {
+        String sql = "INSERT INTO STORAGE (menu_id, file_data) VALUES (?, ?)";
 
         try (Connection conn = ds.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, menuId);
+            pstmt.setLong(1, menuId);
             pstmt.setBinaryStream(2, fileInputStream, fileLength);
 
             return pstmt.executeUpdate();
@@ -36,10 +36,12 @@ public class StorageDAO {
         String sql = "SELECT * FROM STORAGE WHERE menu_id = ?";
 
         try (Connection conn = ds.getConnection()) {
+
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setLong(1, menuID);
 
             try (ResultSet rs = pstmt.executeQuery()) {
+
                 if (rs.next()) {
                     storage = Storage.builder()
                             .id(rs.getLong("id"))

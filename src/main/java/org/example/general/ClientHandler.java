@@ -3,6 +3,7 @@ package org.example.general;
 import org.example.login.LoginRequestDTO;
 import org.example.login.LoginResponseDTO;
 import org.example.login.LoginResponseType;
+import org.example.menu.MenuListRequestDTO;
 import org.example.menu.MenuRegisterRequestDTO;
 import org.example.order.order_request.OrderDetailAdminRequestDTO;
 import org.example.storage.ImageRequestDTO;
@@ -73,10 +74,6 @@ public class ClientHandler extends Thread {
 
                         responseDTO = ApplicationContext.getMenuController().getImage(new ImageRequestDTO(data));
                     }
-                    case (byte) 0x80 -> {
-
-                        responseDTO = ApplicationContext.getRestaurantController().getRestaurantListAll(userId);
-                    }
 
                     case 0x41 -> {
                         //조회기간 파싱 후 이용 내역
@@ -91,6 +88,25 @@ public class ClientHandler extends Thread {
                         data = new byte[Utils.bytesToInt(header, 2)];
                         dis.readFully(data);
                         responseDTO = ApplicationContext.getMenuController().registerMenu(new MenuRegisterRequestDTO(data));
+                    }
+
+                    case (byte) 0x80 -> {
+
+                        responseDTO = ApplicationContext.getRestaurantController().getRestaurantListAll(userId);
+                    }
+
+                    case (byte) 0x81 -> {
+
+                        data = new byte[Utils.bytesToInt(header, 2)];
+                        dis.readFully(data);
+                        responseDTO = ApplicationContext.getMenuController().registerMenu(new MenuRegisterRequestDTO(data));
+                    }
+
+                    case (byte) 0x91 -> {
+
+                        data = new byte[Utils.bytesToInt(header, 2)];
+                        dis.readFully(data);
+                        responseDTO = ApplicationContext.getStorageController().insertImage(new ImageRequestDTO(data));
                     }
 
                     case (byte) 0xA1 -> {
@@ -113,6 +129,11 @@ public class ClientHandler extends Thread {
                         dis.readFully(data);
 
                         responseDTO = ApplicationContext.getOrderController().getOrderAdminHistory(new OrderDetailAdminRequestDTO(data));
+                    }
+
+                    case (byte)0xC2 -> {
+
+                        responseDTO = ApplicationContext.getMenuController().getMenuList(new MenuListRequestDTO(data));
                     }
                 }
 

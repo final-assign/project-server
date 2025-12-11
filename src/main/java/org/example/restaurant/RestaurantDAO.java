@@ -87,4 +87,19 @@ public class RestaurantDAO {
 
         return res;
     }
+
+    public Long findIdByName(Connection conn, String name) throws SQLException {
+        // ENUM 이름과 DB의 name 컬럼이 일치한다고 가정
+        String sql = "SELECT id FROM RESTAURANT WHERE name = ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, name);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong("id");
+                }
+            }
+        }
+        return null;
+    }
 }

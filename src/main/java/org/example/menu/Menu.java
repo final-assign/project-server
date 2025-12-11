@@ -20,4 +20,5 @@ public class Menu {
     private int amount;
     private LocalDate startSalesAt;
     private LocalDate endSalesAt;
+    private boolean isDailyMenu;
 }

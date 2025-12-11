@@ -10,69 +10,71 @@ import java.time.format.DateTimeFormatter;
 @Getter
 public class MenuRegisterRequestDTO {
 
-    final private Long restId;
-    final private String menuName;
-    final private Integer standardPrice;
-    final private Integer studentPrice;
-    final private Integer defaultAmount;
-
-    // [변경] 시작일, 종료일 분리 (yyyy-MM-dd)
-    final private LocalDate startSalesAt;
-    final private LocalDate endSalesAt;
-
-    // [추가] 메뉴 타입 ID (조식/중식/석식 등)
-    final private Long menuTypeId;
+    private final String restaurantName;
+    private final String menuName;
+    private final Integer standardPrice;
+    private final Integer studentPrice;
+    private final Integer defaultAmount;
+    private final LocalDate startSalesAt;
+    private final LocalDate endSalesAt;
+    private final Boolean isDailyMenu; // [추가됨] 상시/오늘의 메뉴 여부
+    private final Long menuTypeId;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public MenuRegisterRequestDTO(byte[] body) {
+    public MenuRegisterRequestDTO(byte[] data) {
+        int offset = 0;
 
-        int cursor = 0;
+        // 1. 식당 ID
+        short restNameLen = Utils.bytesToShort(data, offset);
+        offset += 2;
+        this.restaurantName = new String(data, offset, restNameLen, StandardCharsets.UTF_8);
+        offset += restNameLen;
 
-        // 1. 식당 ID (8 byte)
-        this.restId = Utils.bytesToLong(body, cursor);
-        cursor += 8;
+        // 2. 메뉴 이름
+        short menuNameLength = Utils.bytesToShort(data, offset);
+        offset += 2;
+        this.menuName = new String(data, offset, menuNameLength, StandardCharsets.UTF_8);
+        System.out.println("메뉴 이름: " + menuName);
+        offset += menuNameLength;
 
-        // 2. 메뉴 이름 (Length + String)
-        short menuNameLength = Utils.bytesToShort(body, cursor);
-        cursor += 2;
-        this.menuName = new String(body, cursor, menuNameLength, StandardCharsets.UTF_8);
-        cursor += menuNameLength;
+        // 3. 가격 및 수량
+        this.standardPrice = Utils.bytesToInt(data, offset);
+        offset += 4;
+        this.studentPrice = Utils.bytesToInt(data, offset);
+        offset += 4;
+        this.defaultAmount = Utils.bytesToInt(data, offset);
+        offset += 4;
 
-        // 3. 가격 및 수량 (4 byte * 3)
-        this.standardPrice = Utils.bytesToInt(body, cursor);
-        cursor += 4;
-
-        this.studentPrice = Utils.bytesToInt(body, cursor);
-        cursor += 4;
-
-        this.defaultAmount = Utils.bytesToInt(body, cursor);
-        cursor += 4;
-
-        // 4. 판매 시작일 (Length + String "2025-12-01")
-        short startDateLength = Utils.bytesToShort(body, cursor);
-        cursor += 2;
-        if (startDateLength == 0) {
-            this.startSalesAt = null; // 상시 판매 (시작일 없음)
+        // 4. 시작일
+        short startSalesAtLength = Utils.bytesToShort(data, offset);
+        offset += 2;
+        if (startSalesAtLength > 0) {
+            String startSalesAtStr = new String(data, offset, startSalesAtLength, StandardCharsets.UTF_8);
+            this.startSalesAt = LocalDate.parse(startSalesAtStr, DATE_FORMATTER);
+            offset += startSalesAtLength;
         } else {
-            String dateString = new String(body, cursor, startDateLength, StandardCharsets.UTF_8);
-            this.startSalesAt = LocalDate.parse(dateString, DATE_FORMATTER);
-            cursor += startDateLength;
+            this.startSalesAt = null;
         }
 
-        // 5. 판매 종료일 (Length + String "2025-12-01")
-        short endDateLength = Utils.bytesToShort(body, cursor);
-        cursor += 2;
-        if (endDateLength == 0) {
-            this.endSalesAt = null; // 상시 판매 (종료일 없음)
+        // 5. 종료일
+        short endSalesAtLength = Utils.bytesToShort(data, offset);
+        offset += 2;
+        if (endSalesAtLength > 0) {
+            String endSalesAtStr = new String(data, offset, endSalesAtLength, StandardCharsets.UTF_8);
+            this.endSalesAt = LocalDate.parse(endSalesAtStr, DATE_FORMATTER);
+            offset += endSalesAtLength;
         } else {
-            String dateString = new String(body, cursor, endDateLength, StandardCharsets.UTF_8);
-            this.endSalesAt = LocalDate.parse(dateString, DATE_FORMATTER);
-            cursor += endDateLength;
+            this.endSalesAt = null;
         }
 
-        // 6. 메뉴 타입 ID (8 byte)
-        this.menuTypeId = Utils.bytesToLong(body, cursor);
-        // cursor += 8;
+        // 6. [추가됨] isDailyMenu (1 byte) 읽기
+        // 클라이언트에서 보낸 1 (true) 또는 0 (false) 값을 읽어옴
+        byte isDailyByte = data[offset];
+        this.isDailyMenu = (isDailyByte == 1);
+        offset += 1; // 1바이트만큼 오프셋 이동
+
+        // 7. 메뉴 타입 ID
+        this.menuTypeId = Utils.bytesToLong(data, offset);
     }
 }

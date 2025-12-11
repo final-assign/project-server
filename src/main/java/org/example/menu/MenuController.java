@@ -18,7 +18,14 @@ public class MenuController {
 
 
     public MenuRegisterResponseDTO registerMenu(MenuRegisterRequestDTO req) {
-        //return menuService.registerMenu(req);
-        return null;
+
+        return menuService.registerMenu(req);
+    }
+
+    public MenuListResponseDTO getMenuList(MenuListRequestDTO requestDTO){
+
+        System.out.println(">> [Controller] 메뉴 목록 조회 요청: " + requestDTO.getRestaurantName());
+
+        return menuService.getCouponsTargetMenuList(requestDTO);
     }
 }
