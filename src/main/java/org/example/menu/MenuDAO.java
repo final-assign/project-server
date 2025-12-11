@@ -1,9 +1,11 @@
 package org.example.menu;
 
 import org.example.db.PooledDataSource;
+import org.example.user.UserType;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.List;
 
 public class MenuDAO {
 
@@ -32,7 +34,7 @@ public class MenuDAO {
             throw new RuntimeException(e);
         }
     }
-    
+
     // Overloaded method for non-transactional reads
     public Menu findById(long menuId) {
         try (Connection conn = ds.getConnection()) {
@@ -111,5 +113,40 @@ public class MenuDAO {
         }
     }
 
+    public List<MenuListResponseDTO> findByRestaurantId(long restaurantId, UserType userType) {
 
+        List<MenuListResponseDTO> menus = new java.util.ArrayList<>();
+
+        // 기본 쿼리: 해당 식당의 모든 메뉴 조회
+        StringBuilder sql = new StringBuilder("SELECT * FROM MENU WHERE restaurant_id = ?");
+
+        // 관리자가 아니라면 판매 기간이 유효한 메뉴만 필터링
+        // (시작일이 지났거나 없고, 종료일이 안 지났거나 없는 경우)
+        if (userType != UserType.ADMIN) {
+            sql.append(" AND (start_sales_at <= CURRENT_DATE OR start_sales_at IS NULL)");
+            sql.append(" AND (end_sales_at >= CURRENT_DATE OR end_sales_at IS NULL)");
+        }
+
+        //sql.append(" ORDER BY DESC"); // 최신 등록순 정렬
+
+        try (Connection conn = ds.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
+
+            pstmt.setLong(1, restaurantId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    menus.add(new MenuListResponseDTO().builder()
+                            .studentPrice(rs.getInt("student_price"))
+                            .standardPrice(rs.getInt("standard_price"))
+                            .menuName(rs.getString("menu_name"))
+                            .menuId(rs.getLong("id"))
+                            .build());
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return menus;
+    }
 }

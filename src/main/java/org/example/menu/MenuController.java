@@ -1,9 +1,12 @@
 package org.example.menu;
 
 import lombok.RequiredArgsConstructor;
+import org.example.general.ResponseDTO;
 import org.example.storage.ImageRequestDTO;
 import org.example.storage.ImageResponseDTO;
 import org.example.restaurant.RestaurantDAO;
+
+import static org.example.general.ApplicationContext.userService;
 
 
 @RequiredArgsConstructor
@@ -17,8 +20,7 @@ public class MenuController {
     }
 
 
-    public MenuRegisterResponseDTO registerMenu(MenuRegisterRequestDTO req) {
-        //return menuService.registerMenu(req);
-        return null;
+    public ResponseDTO getMenus(MenuRequestDTO dto, Long userId) {
+        return menuService.findByRestaurantId(dto.getRestaurantId(), userService.getUserType(userId));
     }
 }

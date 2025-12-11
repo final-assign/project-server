@@ -6,6 +6,8 @@ import org.example.storage.ImageResponseDTO;
 import org.example.storage.StorageDAO;
 import org.example.db.PooledDataSource;
 import org.example.general.Pair;
+import org.example.user.UserType;
+
 import java.util.Optional;
 import javax.sql.DataSource;
 import java.nio.charset.StandardCharsets;
@@ -104,6 +106,18 @@ public class MenuService {
         return ImageResponseDTO.builder()
                 .resType(ResponseType.RESPONSE)
                 .imageData(storage.get().getFileData())
+                .build();
+    }
+
+    public MenuListWrapperResponseDTO findByRestaurantId(Long restaurantId, UserType userType) {
+        if(menuDAO.findByRestaurantId(restaurantId, userType) == null){
+            return MenuListWrapperResponseDTO.builder()
+                    .menuList(null)
+                    .build();
+        }
+
+        return MenuListWrapperResponseDTO.builder()
+                .menuList(menuDAO.findByRestaurantId(restaurantId, userType))
                 .build();
     }
 

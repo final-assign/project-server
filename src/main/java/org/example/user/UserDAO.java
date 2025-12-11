@@ -43,7 +43,7 @@ public class UserDAO {
 
     UserType findTypeById(Long id){
 
-        String sql = "SELECT type FROM User WHERE id = ?";
+        String sql = "SELECT type FROM USER WHERE id = ?";
         PreparedStatement pstmt;
         UserType res = null;
 
