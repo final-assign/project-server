@@ -1,3 +1,3 @@
 package org.example.user;
 
-public enum UserType { STUDENT, STAFF, ADMIN }
+public enum UserType { STUDENT, STAFF, ADMIN, ALL }

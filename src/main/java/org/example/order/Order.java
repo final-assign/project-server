@@ -16,6 +16,5 @@ public class Order {
     private PurchaseType purchaseType;
     private OrderStatus status;
     private LocalDateTime createdAt;
-    private int amount;
     private int price;
 }

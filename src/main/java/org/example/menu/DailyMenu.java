@@ -13,5 +13,6 @@ public class DailyMenu {
     private LocalDate servedDate;
     private String mainDish;
     private String subDish;
-    private Integer price;
+    private Integer standardPrice;
+    private Integer studentPrice;
 }

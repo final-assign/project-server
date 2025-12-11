@@ -6,6 +6,8 @@ import org.example.general.ResponseDTO;
 import org.example.general.ResponseType;
 import org.example.general.Utils;
 
+import java.util.Arrays;
+
 @Data
 @Builder
 public class ImageResponseDTO implements ResponseDTO {
@@ -28,7 +30,6 @@ public class ImageResponseDTO implements ResponseDTO {
 
         offset = Utils.intToBytes(dataLength, res, offset);
         System.arraycopy(data, 0, res, offset, dataLength);
-
         return res;
     }
 }

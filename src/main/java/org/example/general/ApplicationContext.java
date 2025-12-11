@@ -49,18 +49,18 @@ public class ApplicationContext {
         menuDAO = new MenuDAO();
         restaurantDAO = new RestaurantDAO();
         dailyMenuDAO = new DailyMenuDAO();
-        menuService = new MenuService(menuDAO, storageDAO, restaurantDAO, dailyMenuDAO);
+        menuService = new MenuService(dao, menuDAO, storageDAO, restaurantDAO, dailyMenuDAO);
         menuController = new MenuController(menuService, menuDAO, restaurantDAO);
         restaurantController = new RestaurantController(restaurantDAO, userService);
 
         CouponDAO couponDAO = new CouponDAO();
-        CouponService couponService = new CouponService(menuDAO, couponDAO);
+        CouponService couponService = new CouponService(menuDAO, couponDAO, dao);
         couponController = new CouponController(couponService);
 
         // Order-related instances
         OrderDAO orderDAO = new OrderDAO();
         OrderDetailDAO orderDetailDAO = new OrderDetailDAO();
-        OrderService orderService = new OrderService(orderDetailDAO,menuDAO, orderDAO);
+        OrderService orderService = new OrderService(orderDetailDAO,menuDAO, orderDAO, dao, couponDAO);
         orderController = new OrderController(orderService);
         storageService = new StorageService(storageDAO);
         storageController = new StorageController(storageService);

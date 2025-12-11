@@ -1,13 +1,17 @@
 package org.example.menu;
 
 import lombok.RequiredArgsConstructor;
+import org.example.general.GeneralException;
+import org.example.general.ResponseCode;
 import org.example.general.ResponseType;
 import org.example.restaurant.RestaurantDAO;
 import org.example.storage.ImageResponseDTO;
 import org.example.menu.StorageDAO;
 import org.example.db.PooledDataSource;
 import org.example.general.Pair;
+import org.example.user.UserDAO;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import javax.sql.DataSource;
@@ -19,6 +23,8 @@ import java.util.ArrayList;
 
 @RequiredArgsConstructor
 public class MenuService {
+
+    private final UserDAO userDAO;
     private final MenuDAO menuDAO;
     private final StorageDAO storageDAO;
     private final RestaurantDAO restaurantDAO;
@@ -45,8 +51,8 @@ public class MenuService {
                 if (dailyMenu != null) {
 
                     // Q. 데일리 메뉴 가격이 NULL이면? -> A. 기존 메뉴 가격(menu.getStandardPrice) 사용
-                    int effectivePrice = (dailyMenu.getPrice() != null)
-                            ? dailyMenu.getPrice()
+                    int effectivePrice = (dailyMenu.getStandardPrice() != null)
+                            ? dailyMenu.getStandardPrice()
                             : menu.getStandardPrice();
 
                     // 메뉴 이름도 "오늘의 메뉴" 껍데기 이름 대신, 실제 메인 반찬 이름(예: "돈까스")으로 교체
@@ -149,6 +155,7 @@ public class MenuService {
         Optional<Storage> storage = storageDAO.findByMenuID(menuId);
 
         if (storage.isEmpty()) {
+            System.out.println("설마 여기니?");
             return ImageResponseDTO.builder()
                     .resType(ResponseType.RESPONSE)
                     .imageData(new byte[0])
@@ -189,10 +196,11 @@ public class MenuService {
 
             } catch (Exception e) {
                 conn.rollback();
-                throw new RuntimeException(e);
+
+                throw new GeneralException(ResponseCode.FORBIDDEN, e.getMessage());
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new GeneralException(ResponseCode.FORBIDDEN, e.getMessage());
         }
     }
 
@@ -201,31 +209,35 @@ public class MenuService {
     // -------------------------------------------------------------
     private Long registerDailyMenu(Connection conn, Long restId, MenuRegisterRequestDTO req) throws SQLException {
 
-        // [수정됨] 식당 ID(restId) 뿐만 아니라 메뉴 타입 ID(req.getMenuTypeId())도 함께 전달하여 조회
-        // 예: "학생식당"의 "석식" 오늘의 메뉴 ID를 찾아라
-        Long parentMenuId = menuDAO.findDailyMenuId(conn, restId, req.getMenuTypeId());
+        Long parentMenuId;
+
+        if (req.getMenuTypeId() == 0) {
+            parentMenuId = menuDAO.findDailyMenuIdWithoutType(conn, restId);
+        } else {
+            parentMenuId = menuDAO.findDailyMenuId(conn, restId, req.getMenuTypeId());
+        }
 
         if (parentMenuId == null) {
-            // 상세한 에러 메시지
             throw new SQLException(String.format(
-                    "해당 식당(%s)에 '오늘의 메뉴' 설정이 없거나, 선택한 메뉴 타입(ID:%d)과 매칭되는 메뉴가 없습니다.",
+                    "해당 식당(%s)에 '오늘의 메뉴' 설정이 없거나 메뉴 타입(ID:%d)에 맞는 메뉴가 없습니다.",
                     req.getRestaurantName(), req.getMenuTypeId()
             ));
         }
 
-        // 찾아낸 parentMenuId를 사용하여 daily_menu 테이블에 등록
         DailyMenu dailyMenu = DailyMenu.builder()
                 .menuId(parentMenuId)
                 .servedDate(req.getStartSalesAt())
                 .mainDish(req.getMenuName())
                 .subDish(null)
-                .price(req.getStandardPrice())
+                .standardPrice(req.getStandardPrice())
+                .studentPrice(req.getStudentPrice())
                 .build();
 
         dailyMenuDAO.insert(conn, dailyMenu);
 
         return parentMenuId;
     }
+
 
     // -------------------------------------------------------------
     // [기존] 상시 메뉴 처리 서비스 로직
@@ -320,5 +332,59 @@ public class MenuService {
             e.printStackTrace();
             throw new RuntimeException("메뉴 목록 조회 중 DB 오류 발생", e);
         }
+    }
+
+    public List<MenuDTO> getRestaurantMenu(long userId, long restaurantId) {
+
+        try (Connection conn = ds.getConnection()) {
+            // --- 네가 이미 만든 로직 그대로 ---
+            String userType = userDAO.getUserType(conn, userId);
+
+            List<Integer> menuTypeIds = restaurantDAO.getOperatingMenuTypes(conn, restaurantId);
+            if (menuTypeIds.isEmpty()) return Collections.emptyList();
+
+            List<Long> menuIds = menuDAO.getMenuIdsByMenuTypes(conn, menuTypeIds);
+            if (menuIds.isEmpty()) return Collections.emptyList();
+
+            List<MenuRow> menus = menuDAO.getMenus(conn, menuIds, restaurantId);
+
+            List<MenuDTO> result = new ArrayList<>();
+
+            for (MenuRow m : menus) {
+
+                DailyMenuRow dm = null;
+                int finalPrice;
+
+                if (m.getIsDailyMenu() == 1) {
+                    dm = menuDAO.getTodayDailyMenu(conn, m.getId());
+                }
+
+                if (dm != null) {
+                    finalPrice = userType.equals("STUDENT")
+                            ? dm.getStudentPrice()
+                            : dm.getStandardPrice();
+                } else {
+                    finalPrice = userType.equals("STUDENT")
+                            ? m.getStudentPrice()
+                            : m.getStandardPrice();
+                }
+
+                result.add(new MenuDTO(
+                        m.getId(),
+                        m.getMenuName(),
+                        finalPrice,
+                        m.getAmount(),
+                        m.getIsDailyMenu()
+                ));
+            }
+
+            return result;
+
+        }catch (SQLException e){
+
+            System.out.println("379번 에러");
+        }
+
+        return null;
     }
 }

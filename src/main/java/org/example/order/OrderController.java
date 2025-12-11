@@ -1,6 +1,7 @@
 package org.example.order;
 
 import lombok.RequiredArgsConstructor;
+import org.example.general.GeneralResponseDTO;
 import org.example.order.order_request.*;
 
 @RequiredArgsConstructor
@@ -19,7 +20,13 @@ public class OrderController {
     }
 
 
-    public void processOrder(OrderRequestDTO requestDTO, Long id) {
-            orderService.createOrder(requestDTO, id);
-        }
+    public GeneralResponseDTO processCardOrder(OrderCardRequestDTO requestDTO, Long id) {
+
+        return orderService.createCardOrder(requestDTO, id);
+    }
+
+    public GeneralResponseDTO processCouponOrder(OrderCouponRequestDTO requestDTO, Long id) {
+
+        return orderService.createCouponOrder(requestDTO.getMenuId(), id);
+    }
 }

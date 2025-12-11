@@ -1,6 +1,8 @@
 package org.example.restaurant;
 
 import org.example.db.PooledDataSource;
+import org.example.general.GeneralException;
+import org.example.general.ResponseCode;
 import org.example.menu.Menu;
 import org.example.menu.MenuType;
 import org.example.menu.MenuTypeName;
@@ -12,6 +14,7 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.List;
 
 public class RestaurantDAO {
 
@@ -101,5 +104,66 @@ public class RestaurantDAO {
             }
         }
         return null;
+    }
+
+    public List<AvailableRestaurantDTO> findAvailableRestaurant(Long userId) {
+        String sql =
+                "SELECT DISTINCT r.id, r.name, r.description " +
+                        "FROM USER u " +
+                        "JOIN USER_TYPE_RESTAURANT utr ON u.type = utr.user_type " +
+                        "JOIN RESTAURANT r ON utr.restaurant_id = r.id " +
+                        "JOIN RESTAURANT_OPERATING_INFO roi ON r.id = roi.restaurant_id " +
+                        "WHERE u.id = ? " +
+                        "AND CURRENT_TIME BETWEEN roi.start_at AND roi.end_at";
+
+        List<AvailableRestaurantDTO> list = new ArrayList<>();
+
+        try (Connection conn = ds.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setLong(1, userId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Long id = rs.getLong("id");
+                    String name = rs.getString("name");
+                    String description = rs.getString("description");
+
+                    AvailableRestaurantDTO dto = new AvailableRestaurantDTO(id, name, description);
+                    list.add(dto);
+                }
+            }
+        } catch (SQLException e){
+
+            throw new GeneralException(ResponseCode.FORBIDDEN, e.getMessage());
+        }
+
+        return list;
+    }
+
+    public List<Integer> getOperatingMenuTypes(Connection conn, long restaurantId) throws SQLException {
+
+        String sql =
+                "SELECT menu_type_id " +
+                        "FROM RESTAURANT_OPERATING_INFO " +
+                        "WHERE restaurant_id = ? " +
+                        "AND CURRENT_TIME() BETWEEN start_at AND end_at";
+
+        try {
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setLong(1, restaurantId);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            List<Integer> list = new ArrayList<>();
+            while (rs.next()) {
+                list.add(rs.getInt("menu_type_id"));
+            }
+            return list;
+
+        } catch (SQLException e) {
+            System.out.println("[ROI.getOperatingMenuTypes] SQL ERROR: " + e.getMessage());
+            throw new SQLException(e);
+        }
     }
 }

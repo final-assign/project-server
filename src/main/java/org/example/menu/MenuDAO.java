@@ -5,6 +5,7 @@ import org.example.db.PooledDataSource;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MenuDAO {
@@ -48,6 +49,7 @@ public class MenuDAO {
             pstmt.setLong(1, menuId);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
+
                     return new Menu(
                             rs.getLong("id"),
                             rs.getLong("restaurant_id"),
@@ -172,5 +174,132 @@ public class MenuDAO {
             }
         }
         return list;
+    }
+
+    public List<Long> getMenuIdsByMenuTypes(Connection conn, List<Integer> menuTypeIds) throws SQLException {
+
+        if (menuTypeIds.isEmpty()) return new ArrayList<>();
+
+        try {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < menuTypeIds.size(); i++) {
+                sb.append("?");
+                if (i < menuTypeIds.size() - 1) sb.append(",");
+            }
+
+            String sql =
+                    "SELECT menu_id FROM MENU_AVAILABILITY WHERE menu_type_id IN (" + sb + ")";
+
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+
+            for (int i = 0; i < menuTypeIds.size(); i++) {
+                pstmt.setInt(i + 1, menuTypeIds.get(i));
+            }
+
+            ResultSet rs = pstmt.executeQuery();
+
+            List<Long> list = new ArrayList<>();
+            while (rs.next()) {
+                list.add(rs.getLong("menu_id"));
+            }
+            return list;
+
+        } catch (SQLException e) {
+            System.out.println("[MenuAvailabilityDAO] SQL ERROR: " + e.getMessage());
+            throw new SQLException(e);
+        }
+    }
+
+    public List<MenuRow> getMenus(Connection conn, List<Long> menuIds, long restaurantId) {
+
+        if (menuIds.isEmpty()) return new ArrayList<>();
+
+        try {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < menuIds.size(); i++) {
+                sb.append("?");
+                if (i < menuIds.size() - 1) sb.append(",");
+            }
+
+            String sql =
+                    "SELECT id, restaurant_id, menu_name, standard_price, student_price, amount, is_daily_menu " +
+                            "FROM MENU WHERE restaurant_id = ? AND id IN (" + sb + ")";
+
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setLong(1, restaurantId);
+
+            for (int i = 0; i < menuIds.size(); i++) {
+                pstmt.setLong(i + 2, menuIds.get(i));
+            }
+
+            ResultSet rs = pstmt.executeQuery();
+
+            List<MenuRow> list = new ArrayList<>();
+            while (rs.next()) {
+                list.add(new MenuRow(
+                        rs.getLong("id"),
+                        rs.getLong("restaurant_id"),
+                        rs.getString("menu_name"),
+                        rs.getInt("standard_price"),
+                        rs.getInt("student_price"),
+                        rs.getInt("amount"),
+                        rs.getInt("is_daily_menu")
+                ));
+            }
+            return list;
+
+        } catch (SQLException e) {
+            System.out.println("[MenuDAO] SQL ERROR: " + e.getMessage());
+        }
+
+        return null;
+    }
+
+    public DailyMenuRow getTodayDailyMenu(Connection conn, long menuId) {
+
+        String sql =
+                "SELECT id, menu_id, main_dish, sub_dish, standard_price, student_price " +
+                        "FROM DAILY_MENU WHERE menu_id = ? AND served_date = CURDATE()";
+
+        try {
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setLong(1, menuId);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return new DailyMenuRow(
+                        rs.getLong("id"),
+                        rs.getLong("menu_id"),
+                        rs.getString("main_dish"),
+                        rs.getString("sub_dish"),
+                        rs.getInt("standard_price"),
+                        rs.getInt("student_price")
+                );
+            }
+
+
+
+        } catch (SQLException e) {
+            System.out.println("[DailyMenuDAO] SQL ERROR: " + e.getMessage());
+        }
+
+        return null;
+    }
+
+    public Long findDailyMenuIdWithoutType(Connection conn, Long restId) throws SQLException {
+
+        String sql = "SELECT id FROM MENU WHERE restaurant_id = ? LIMIT 1";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, restId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong("id");
+                }
+            }
+        }
+
+        return null;
     }
 }

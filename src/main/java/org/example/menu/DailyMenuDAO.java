@@ -11,7 +11,7 @@ public class DailyMenuDAO {
     // 오늘의 메뉴 상세 내역 추가
     public int insert(Connection conn, DailyMenu dailyMenu) throws SQLException {
 
-        String sql = "INSERT INTO DAILY_MENU (menu_id, served_date, main_dish, sub_dish, price) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO DAILY_MENU (menu_id, served_date, main_dish, sub_dish, standard_price, student_price) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setLong(1, dailyMenu.getMenuId());
@@ -25,8 +25,8 @@ public class DailyMenuDAO {
                 pstmt.setNull(4, java.sql.Types.VARCHAR);
             }
 
-            pstmt.setInt(5, dailyMenu.getPrice());
-
+            pstmt.setInt(5, dailyMenu.getStandardPrice());
+            pstmt.setInt(6, dailyMenu.getStandardPrice());
             return pstmt.executeUpdate();
         }
     }
@@ -53,7 +53,8 @@ public class DailyMenuDAO {
                             .servedDate(rs.getDate("served_date").toLocalDate())
                             .mainDish(rs.getString("main_dish"))
                             .subDish(rs.getString("sub_dish")) // sub_dish가 있으면 가져옴
-                            .price(price) // NULL이면 null로 들어감 -> 서비스에서 처리
+                            .standardPrice(rs.getInt("standard_price")) // NULL이면 null로 들어감 -> 서비스에서 처리
+                            .studentPrice(rs.getInt("student_price"))
                             .build();
                 }
             }

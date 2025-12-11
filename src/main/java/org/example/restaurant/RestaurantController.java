@@ -22,4 +22,9 @@ public class RestaurantController {
         return RestaurantListResponseDTO.builder()
                 .list(restaurantDAO.findAll()).build();
     }
+
+    public AvailableRestaurantResponseDTO getAvailableRestaurant(Long id){
+
+        return AvailableRestaurantResponseDTO.builder().list(restaurantDAO.findAvailableRestaurant(id)).build();
+    }
 }

@@ -11,8 +11,8 @@ import org.example.user.UserType;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Coupon {
+
     private Long id;
-    private Long restId;
     private Long menuId;
     private UserType userType;
     private Integer couponPrice;

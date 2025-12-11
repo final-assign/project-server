@@ -17,8 +17,8 @@ public class OrderDetailDAO {
         List<OrderDetail> orders = new ArrayList<>();
 
         //메뉴명과 쿠폰 검색을 위해 join
-        String sql = "SELECT o.*, m.menu_name, c.price, u.school_id, r.name " +
-                "FROM ORDERS o " +
+        String sql = "SELECT o.*, m.menu_name, c.coupon_price, u.school_id, r.name " +
+                "FROM `ORDER` o " +
                 "JOIN USER u ON o.user_id = u.id " +
                 "JOIN MENU m ON o.menu_id = m.id " +
                 "JOIN RESTAURANT r ON m.restaurant_id = r.id " +
@@ -44,7 +44,7 @@ public class OrderDetailDAO {
                             .price(rs.getInt("total_price"))
                             .createdAt(rs.getTimestamp("created_at").toLocalDateTime())
                             .menuName(rs.getString("menu_name"))
-                            .couponPrice(rs.getInt("price"))
+                            .couponPrice(rs.getInt("coupon_price"))
                             .schoolId(rs.getString("school_id"))
                             .restaurantName(rs.getString("name"))
                             .build();

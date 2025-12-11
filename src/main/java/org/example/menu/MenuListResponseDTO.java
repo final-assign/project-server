@@ -41,7 +41,7 @@ public class MenuListResponseDTO implements ResponseDTO {
         // 3. 헤더 작성 (0 ~ 5 index)
         // ------------------------------------------------
         packet[0] = 0x02; // 0x02
-        packet[1] = (byte) 0x91;                    // Code
+        packet[1] = (byte) 0xC2;                    // Code
 
         // Body Length (4byte)
         System.arraycopy(Utils.intToBytes(bodySize), 0, packet, 2, 4);

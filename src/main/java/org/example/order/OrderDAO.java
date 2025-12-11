@@ -14,7 +14,7 @@ public class OrderDAO {
 
     public int countTodaysOrdersByMenuId(long menuId, Connection conn) {
         // 오늘 날짜에 COOKING 또는 COMPLETED 상태인 주문 수를 계산
-        String sql = "SELECT COUNT(*) FROM orders WHERE menu_id = ? AND DATE(created_at) = CURDATE() AND status IN ('COOKING', 'COMPLETED')";
+        String sql = "SELECT COUNT(*) FROM `ORDER` WHERE menu_id = ? AND DATE(created_at) = CURDATE() AND status IN ('COOKING', 'COMPLETED')";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setLong(1, menuId);
@@ -27,9 +27,11 @@ public class OrderDAO {
     }
 
     public void insert(Order order, Connection conn) {
-        String sql = "INSERT INTO orders (menu_id, coupon_id, user_id, status, created_at) VALUES (?, ?, ?, ?, NOW())";
+
+        String sql = "INSERT INTO `ORDER` (menu_id, coupon_id, user_id, status, total_price, created_at) VALUES (?, ?, ?, ?, ?, NOW())";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             pstmt.setLong(1, order.getMenuId());
             if (order.getCouponId() != null) {
                 pstmt.setLong(2, order.getCouponId());
@@ -38,7 +40,7 @@ public class OrderDAO {
             }
             pstmt.setLong(3, order.getUserId());
             pstmt.setString(4, order.getStatus().name());
-
+            pstmt.setInt(5, order.getPrice());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("주문 생성에 실패했습니다.", e);

@@ -1,6 +1,7 @@
 package org.example.coupon;
 
 import lombok.RequiredArgsConstructor;
+import org.example.general.ResponseDTO;
 
 @RequiredArgsConstructor
 public class CouponController {
@@ -11,8 +12,13 @@ public class CouponController {
         return couponService.getAllCoupons(userId);
     }
 
-    public void createCoupon(byte[] body) {
+    public ResponseDTO createCoupon(CouponCreateRequestDTO dto) {
 
-        couponService.createCouponsForMenu(new CouponCreateRequestDTO(body));
+        return couponService.createCouponsForMenu(dto);
+    }
+
+    public MenuCouponResponseDTO getCountByMenuId(MenuCouponRequestDTO req, long userId){
+
+        return couponService.getCouponByMenu(req, userId);
     }
 }

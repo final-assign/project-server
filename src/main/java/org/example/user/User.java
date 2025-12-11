@@ -12,4 +12,5 @@ public class User {
     private String schoolId;
     private String password;
     private String name;
+    private int balance;
 }
