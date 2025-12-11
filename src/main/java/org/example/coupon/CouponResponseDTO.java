@@ -7,7 +7,6 @@ import org.example.general.ResponseDTO;
 import org.example.general.ResponseType;
 import org.example.general.Utils;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Data
@@ -19,56 +18,49 @@ public class CouponResponseDTO implements ResponseDTO {
 
     @Override
     public byte[] toBytes() {
-        // 쿠폰 개수 4바이트
-        int bodyLength = 4;
+        // 1. 바디 크기 계산
+        int bodyLength = 4; // 쿠폰 개수(Count)
+
         for (CouponDetail coupon : coupons) {
-            // id 8, price 4, quantity 4
-            bodyLength += 8 + 4 + 4;
-            bodyLength += Utils.getStrSize(coupon.getMenuName());
+            // ID(8) + Price(4) + Qty(4) = 16 bytes
+            // 각 필드 앞에 길이 정보(4)가 붙으므로: (4+8) + (4+4) + (4+4) = 28 bytes
+            bodyLength += 28;
+
+            // 메뉴 이름: OuterLen(4) + InnerLen(4) + StringBytes
+            // getStrPacketSize는 (4+Bytes)를 반환하므로 앞에 OuterLen(4) 더함
+            bodyLength += 4 + Utils.getStrSize(coupon.getMenuName());
         }
 
         byte[] res = new byte[1 + 1 + 4 + bodyLength];
         int cursor = 0;
 
+        // 헤더
         res[cursor++] = (byte) resType.getValue();
-        res[cursor++] = (byte) 0x42; // 고정값
+        res[cursor++] = (byte) 0x42;
+        cursor = Utils.intToBytes(bodyLength, res, cursor);
 
-        // body 사이즈
-        System.arraycopy(Utils.intToBytes(bodyLength), 0, res, cursor, 4);
-        cursor += 4;
+        // 데이터 쓰기
 
         // 쿠폰 개수
-        System.arraycopy(Utils.intToBytes(coupons.size()), 0, res, cursor, 4);
-        cursor += 4;
+        cursor = Utils.intToBytes(coupons.size(), res, cursor);
 
         for (CouponDetail coupon : coupons) {
-            // id 사이즈
-            System.arraycopy(Utils.intToBytes(8), 0, res, cursor, 8);
-            cursor += 4;
-            // id
-            System.arraycopy(Utils.longToBytes(coupon.getId()), 0, res, cursor, 8);
-            cursor += 8;
+            // 1. ID (Len 4 + Val 8)
+            cursor = Utils.intToBytes(8, res, cursor);
+            cursor = Utils.longToBytes(coupon.getId(), res, cursor);
 
-            //가격 사이즈
-            System.arraycopy(Utils.intToBytes(4), 0, res, cursor, 8);
-            cursor += 4;
-            // 가격
-            System.arraycopy(Utils.intToBytes(coupon.getPrice()), 0, res, cursor, 4);
-            cursor += 4;
+            // 2. 가격 (Len 4 + Val 4)
+            cursor = Utils.intToBytes(4, res, cursor);
+            cursor = Utils.intToBytes(coupon.getPrice(), res, cursor);
 
-            //쿠폰 수량 사이즈
-            System.arraycopy(Utils.intToBytes(4), 0, res, cursor, 8);
-            cursor += 4;
-            // 쿠폰 수량
-            System.arraycopy(Utils.intToBytes(coupon.getQuantity()), 0, res, cursor, 4);
-            cursor += 4;
+            // 3. 수량 (Len 4 + Val 4)
+            cursor = Utils.intToBytes(4, res, cursor);
+            cursor = Utils.intToBytes(coupon.getQuantity(), res, cursor);
 
-
-            //메뉴 이름 사이즈
-            System.arraycopy(Utils.intToBytes(Utils.getStrSize(coupon.getMenuName())), 0, res, cursor, 4);
-            cursor += 4;
-            //메뉴 이름
-            System.arraycopy(Utils.intToBytes(Utils.stringToBytes(coupon.getMenuName(), res, cursor)), 0, res, cursor, 4);
+            // 4. 메뉴 이름 (OuterLen 4 + InnerLen 4 + Bytes)
+            int namePacketSize = Utils.getStrSize(coupon.getMenuName());
+            cursor = Utils.intToBytes(namePacketSize, res, cursor); // Outer Len
+            cursor = Utils.stringToBytes(coupon.getMenuName(), res, cursor); // Inner Len + Bytes
         }
 
         return res;

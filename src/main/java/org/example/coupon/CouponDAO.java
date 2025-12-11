@@ -17,12 +17,12 @@ public class CouponDAO {
         List<CouponDetail> coupons = new ArrayList<>();
 
         //안 쓴거만 가져오기
-        String sql = "SELECT c.id, m.menu_name, c.price, ci.quantity " +
+        String sql = "SELECT c.id, m.menu_name, c.coupon_price, ci.quanity " +
                 "FROM COUPON_INVENTORY ci " +
                 "JOIN COUPON c ON ci.coupon_id = c.id " +
                 "JOIN MENU m ON c.menu_id = m.id " +
-                "WHERE ci.user_id = ? AND ci.is_used = false " +
-                "GROUP BY c.id, m.menu_name, c.price";
+                "WHERE ci.user_id = ? AND ci.quanity > 0 " +
+                "ORDER BY c.id DESC";
 
         try (Connection conn = ds.getConnection()) {
             PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -33,8 +33,8 @@ public class CouponDAO {
                     CouponDetail coupon = CouponDetail.builder()
                             .id(rs.getLong("id"))
                             .menuName(rs.getString("menu_name"))
-                            .price(rs.getInt("price"))
-                            .quantity(rs.getInt("quantity"))
+                            .price(rs.getInt("coupon_price"))
+                            .quantity(rs.getInt("quanity"))
                             .build();
 
                     coupons.add(coupon);
